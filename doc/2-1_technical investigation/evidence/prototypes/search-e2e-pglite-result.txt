@@ -1,0 +1,122 @@
+=== 環境 ===
+{"version":"PostgreSQL 18.6 (PGlite 0.5.10) on wasm32-unknown-emscripten, compiled by emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.5 (1db513782be24469589d7cb8a1f1834e9a33f271), 32-bit","enc":"UTF8","scs":"on"}
+{"datcollate":"C","datctype":"C.UTF-8","datlocprovider":"c"}
+[{"proname":"array_to_string","provolatile":"s"},{"proname":"array_to_string","provolatile":"s"},{"proname":"concat_ws","provolatile":"s"},{"proname":"format","provolatile":"s"},{"proname":"format","provolatile":"s"},{"proname":"lower","provolatile":"i"},{"proname":"lower","provolatile":"i"},{"proname":"lower","provolatile":"i"},{"proname":"normalize","provolatile":"i"}]
+
+=== 生成列の IMMUTABLE 制約の確認 ===
+generated as (array_to_string(a, ' ')) -> ERROR 42P17 generation expression is not immutable
+generated as (concat_ws(' ', s, s)) -> ERROR 42P17 generation expression is not immutable
+generated as (lower(normalize(s, NFKC))) -> OK
+
+=== search_text (生成列) ===
+c01: "ラーメン一蘭 渋谷店 うまい 東京都渋谷区 ラーメン屋"
+c02: "つけ麺 道  東京都葛飾区 ラーメン屋"
+c03: "スターバックス コーヒー 新宿店  東京都新宿区 コーヒーショップ"
+c04: "cafe veloce 100%オフ 東京都豊島区 カフェ"
+c05: "tully's coffee 12:30 集合 東京都港区 カフェ"
+c06: "h&m 渋谷 https://example.com を見た 東京都渋谷区 衣料品店"
+c07: "a_b ストア foo\\bar  "
+c08: "axb ストア 100円  "
+c09: "(株)テスト商会 '); drop table checkins; --  "
+c10: "café de crié  東京都新宿区 カフェ"
+c11: "ラーメン二郎 新宿店  東京都新宿区 ラーメン屋"
+c12: "ラーメン一蘭 渋谷店 他人のチェックイン 東京都渋谷区 ラーメン屋"
+
+=== (A) TS生成SQL / (B) RPC / (C) JS参照評価 の一致確認 ===
+MATCH  "ラーメン"                             ast="ラーメン"  params=["%ラーメン%"]  A=["c02","c01"]
+MATCH  "ラーメン 渋谷"                          ast=and("ラーメン", "渋谷")  params=["%ラーメン%","%渋谷%"]  A=["c01"]
+MATCH  "ラーメン OR つけ麺"                      ast=or("ラーメン", "つけ麺")  params=["%ラーメン%","%つけ麺%"]  A=["c02","c01"]
+MATCH  "(ラーメン OR つけ麺) 渋谷"                 ast=and(or("ラーメン", "つけ麺"), "渋谷")  params=["%ラーメン%","%つけ麺%","%渋谷%"]  A=["c01"]
+MATCH  "一蘭 OR (つけ麺 AND 葛飾)"               ast=or("一蘭", and("つけ麺", "葛飾"))  params=["%一蘭%","%つけ麺%","%葛飾%"]  A=["c02","c01"]
+MATCH  "ラーメン (渋谷 OR 新宿)"                  ast=and("ラーメン", or("渋谷", "新宿"))  params=["%ラーメン%","%渋谷%","%新宿%"]  A=["c01"]
+MATCH  "ｽﾀｰﾊﾞｯｸｽ"                         ast="スターバックス"  params=["%スターバックス%"]  A=["c03"]
+MATCH  "スターバックス"                          ast="スターバックス"  params=["%スターバックス%"]  A=["c03"]
+MATCH  "ＣＡＦＥ"                             ast="CAFE"  params=["%CAFE%"]  A=["c04"]
+MATCH  "cafe"                             ast="cafe"  params=["%cafe%"]  A=["c04"]
+MATCH  "Cafe"                             ast="Cafe"  params=["%Cafe%"]  A=["c04"]
+MATCH  "\"100%\""                         ast=q"100%"  params=["%100\\%%"]  A=["c04"]
+MATCH  "100"                              ast="100"  params=["%100%"]  A=["c08","c04"]
+MATCH  "\"a_b\""                          ast=q"a_b"  params=["%a\\_b%"]  A=["c07"]
+MATCH  "a_b"                              ast="a_b"  params=["%a\\_b%"]  A=["c07"]
+MATCH  "\"foo\\\\bar\""                   ast=q"foo\\bar"  params=["%foo\\\\bar%"]  A=["c07"]
+MATCH  "\"Tully's\""                      ast=q"Tully's"  params=["%Tully's%"]  A=["c05"]
+MATCH  "\"12:30\""                        ast=q"12:30"  params=["%12:30%"]  A=["c05"]
+MATCH  "\"https://example.com\""          ast=q"https://example.com"  params=["%https://example.com%"]  A=["c06"]
+MATCH  "Ｈ＆Ｍ"                              ast="H&M"  params=["%H&M%"]  A=["c06"]
+MATCH  "\"H&M\""                          ast=q"H&M"  params=["%H&M%"]  A=["c06"]
+MATCH  "\"'); DROP TABLE checkins; --\""  ast=q"'); DROP TABLE checkins; --"  params=["%'); DROP TABLE checkins; --%"]  A=["c09"]
+MATCH  "㈱テスト"                             ast="(株)テスト"  params=["%(株)テスト%"]  A=["c09"]
+MATCH  "\"(株)テスト\""                       ast=q"(株)テスト"  params=["%(株)テスト%"]  A=["c09"]
+MATCH  "café"                             ast="café"  params=["%café%"]  A=["c10"]
+MATCH  "CAFÉ"                             ast="CAFÉ"  params=["%CAFÉ%"]  A=["c10"]
+MATCH  "crié"                             ast="crié"  params=["%crié%"]  A=["c10"]
+MATCH  "\"一蘭 渋谷\""                        ast=q"一蘭 渋谷"  params=["%一蘭 渋谷%"]  A=["c01"]
+MATCH  "存在しない語"                           ast="存在しない語"  params=["%存在しない語%"]  A=[]
+全件一致: true
+テーブル残存確認: {"n":12}
+
+=== RLS(security invoker)確認 ===
+U1 で 一蘭: ["c01"]
+U2 で 一蘭: ["c12"]
+U1 で直接 select(RLS のみ): ["c01"]
+
+=== RPC への不正入力(PostgREST 経由で誰でも直接呼べる前提) ===
+OK  {"type":"term","value":"x') OR true --"} -> []
+ERR {"type":"or) OR (true","children":[]} -> 22023 invalid search node type
+ERR {"type":"and","children":[]} -> 22023 invalid search group
+ERR {"type":"and","children":[{"type":"term","value":"t0"},{"type":"term","value":"t -> 22023 too many search terms
+ERR {"type":"and","children":[{"type":"and","children":[{"type":"and","children":[{" -> 22023 search query too deep
+ERR {"type":"term","value":""} -> 22023 invalid search term
+ERR {"type":"term","value":"あああああああああああああああああああああああああああああああああああああああああああああああああああ"} -> 22023 invalid search term
+ERR {"type":"term"} -> 22023 invalid search term
+ERR \u0000 を含む jsonb -> 22P05 unsupported Unicode escape sequence
+NUL を text パラメータに -> 22021 invalid byte sequence for encoding "UTF8": 0x00
+
+=== キーセットページング(RPC, limit 2) ===
+pages=[["c10","c08"],["c07","c05"],["c04","c02"],["c01"]]  expected(all)=["c10","c08","c07","c05","c04","c02","c01"]
+
+=== 性能: 1ユーザー 5万件 + 他ユーザー 5万件 ===
+{"total":100012,"u1":50011}
+(A) limit 50  ラーメン                                               median=1.9ms  -> 50
+(A) count(*)  ラーメン                                               median=202.1ms  -> 30002
+(B) RPC limit 50 ラーメン                                            median=251.6ms  -> 50
+(A) limit 50  渋谷                                                 median=1.8ms  -> 50
+(A) count(*)  渋谷                                                 median=183.4ms  -> 15718
+(B) RPC limit 50 渋谷                                              median=249.2ms  -> 50
+(A) limit 50  ラーメン 渋谷                                            median=4.3ms  -> 50
+(A) count(*)  ラーメン 渋谷                                            median=291.5ms  -> 12859
+(B) RPC limit 50 ラーメン 渋谷                                         median=255.6ms  -> 50
+(A) limit 50  ラーメン OR つけ麺 OR 吉野家 OR 松屋 OR すき家                    median=2.8ms  -> 50
+(A) count(*)  ラーメン OR つけ麺 OR 吉野家 OR 松屋 OR すき家                    median=190.3ms  -> 45002
+(B) RPC limit 50 ラーメン OR つけ麺 OR 吉野家 OR 松屋 OR すき家                 median=309.1ms  -> 50
+(A) limit 50  (ラーメン OR つけ麺) (渋谷 OR 新宿) "うまかった"                   median=4.9ms  -> 50
+(A) count(*)  (ラーメン OR つけ麺) (渋谷 OR 新宿) "うまかった"                   median=231.1ms  -> 2856
+(B) RPC limit 50 (ラーメン OR つけ麺) (渋谷 OR 新宿) "うまかった"                median=240.7ms  -> 50
+(A) limit 50  "100%"                                             median=2.3ms  -> 50
+(A) count(*)  "100%"                                             median=174.5ms  -> 3897
+(B) RPC limit 50 "100%"                                          median=3.5ms  -> 50
+(A) limit 50  存在しない語                                             median=205.1ms  -> 0
+(A) count(*)  存在しない語                                             median=203.7ms  -> 0
+(B) RPC limit 50 存在しない語                                          median=211.3ms  -> 0
+(A) limit 50  コーヒー                                               median=1.6ms  -> 50
+(A) count(*)  コーヒー                                               median=199.6ms  -> 10001
+(B) RPC limit 50 コーヒー                                            median=227.3ms  -> 50
+
+EXPLAIN (A) ラーメン 渋谷 limit 50:
+  Limit  (cost=0.42..141.84 rows=50 width=14) (actual time=0.148..0.944 rows=50.00 loops=1)
+    Buffers: shared hit=18
+    ->  Index Scan using checkins_user_created_idx on checkins  (cost=0.42..13497.33 rows=4772 width=14) (actual time=0.137..0.818 rows=50.00 loops=1)
+          Index Cond: (user_id = '11111111-1111-1111-1111-111111111111'::uuid)
+          Filter: ((deleted_at IS NULL) AND (search_text ~~* '%ラーメン%'::text) AND (search_text ~~* '%渋谷%'::text))
+          Rows Removed by Filter: 152
+          Index Searches: 1
+          Buffers: shared hit=18
+  Planning Time: 1.013 ms
+  Execution Time: 1.196 ms
+
+=== pg_trgm 参考(PGlite の locale での挙動。Supabase と同じとは限らない) ===
+show_trgm("渋谷") = ["0x872e75","0xb10c06","0x6fdb02"]
+show_trgm("ラーメン") = ["0xadac30","0xfae2d9","0xfd0f1b"," wB","0x515302"]
+show_trgm("ab") = ["  a"," ab","ab "]
+show_trgm("abc") = ["  a"," ab","abc","bc "]
+show_trgm("ラーメン一蘭 渋谷店") = ["0xadac30","0xb10c06","0xbb0142","0xd67351","0xfae2d9","0xfd0f1b","0x0dc29b","0x419d3f","0x515302","0x665cad","0x6fdb02"]

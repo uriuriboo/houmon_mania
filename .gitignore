@@ -1,0 +1,23 @@
+# 実物の Foursquare エクスポート(個人の位置履歴)は絶対にコミットしない
+*.zip
+local-data/
+
+# 依存・ビルド成果物
+node_modules/
+.next/
+out/
+.netlify/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# 環境変数(本アプリは秘密情報を持たないが、誤コミット防止)
+.env
+.env.*
+
+# OS・エディタ
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

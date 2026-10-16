@@ -1,0 +1,94 @@
+﻿=== Test1 verifyOtp error: null
+=== Test1 setAll calls: [
+  {
+    "cookies": [
+      {
+        "name": "sb-abcdefghijklmnopqrst-auth-token",
+        "len": 1714,
+        "options": {
+          "path": "/",
+          "sameSite": "lax",
+          "httpOnly": true,
+          "maxAge": 34560000,
+          "secure": true
+        }
+      }
+    ],
+    "headers": {
+      "Cache-Control": "private, no-cache, no-store, must-revalidate, max-age=0",
+      "Expires": "0",
+      "Pragma": "no-cache"
+    }
+  }
+]
+=== Test1 cookie names: [ 'sb-abcdefghijklmnopqrst-auth-token' ]
+=== Test1 decoded cookie length: 1280
+=== Test1 cookie contains provider_token?: true
+=== Test1 cookie top-level keys: [
+  'access_token',
+  'token_type',
+  'expires_in',
+  'expires_at',
+  'refresh_token',
+  'user',
+  'provider_token'
+]
+=== Test2 getClaims error: null  sub: 11111111-2222-3333-4444-555555555555
+=== Test2 HTTP calls made by getClaims: [{"method":"GET","url":"/auth/v1/.well-known/jwks.json","apikey":"sb_publishable_TESTTESTTEST","authorization":"Bearer sb_publishable_TESTTESTTEST...","sbForwardedFor":null}]
+=== Test3 REST calls [admin(no session), secret+cookies(session), secret+cookies(no session), publishable(no session)]:
+[
+  {
+    "method": "GET",
+    "url": "/rest/v1/checkins?select=*&limit=1",
+    "apikey": "sb_secret_TESTTESTTEST",
+    "authorization": "Bearer sb_secret_TESTTESTTEST...",
+    "sbForwardedFor": null
+  },
+  {
+    "method": "GET",
+    "url": "/rest/v1/checkins?select=*&limit=1",
+    "apikey": "sb_secret_TESTTESTTEST",
+    "authorization": "Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc...",
+    "sbForwardedFor": null
+  },
+  {
+    "method": "GET",
+    "url": "/rest/v1/checkins?select=*&limit=1",
+    "apikey": "sb_secret_TESTTESTTEST",
+    "authorization": "Bearer sb_secret_TESTTESTTEST...",
+    "sbForwardedFor": null
+  },
+  {
+    "method": "GET",
+    "url": "/rest/v1/checkins?select=*&limit=1",
+    "apikey": "sb_publishable_TESTTESTTEST",
+    "authorization": "Bearer sb_publishable_TESTTESTTEST...",
+    "sbForwardedFor": null
+  }
+]
+=== Test4 tokens-only cookie names: [ 'sb-abcdefghijklmnopqrst-auth-token' ]  decoded length: 893  keys: [
+  'access_token',
+  'token_type',
+  'expires_in',
+  'expires_at',
+  'refresh_token',
+  'provider_token'
+]
+=== Test4 tokens-only contains provider_token?: true
+=== Test5 signOut error: null
+=== Test5 HTTP calls: [{"method":"POST","url":"/auth/v1/logout?scope=local","apikey":"sb_publishable_TESTTESTTEST","authorization":"Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc...","sbForwardedFor":null}]
+=== Test5 setAll (cookie removal): [{"cookies":[{"name":"sb-abcdefghijklmnopqrst-auth-token","len":0,"options":{"path":"/","sameSite":"lax","httpOnly":true,"maxAge":0,"secure":true}}],"headers":{"Cache-Control":"private, no-cache, no-store, must-revalidate, max-age=0","Expires":"0","Pragma":"no-cache"}}]
+=== Test5 remaining cookies: []
+=== Test6 verifyOtp error: null
+=== Test6 HTTP calls: [{"method":"POST","url":"/auth/v1/verify","apikey":"sb_secret_TESTTESTTEST","authorization":"Bearer sb_secret_TESTTESTTEST...","sbForwardedFor":"203.0.113.7"}]
+=== Test7 verify error: null  setSession error: null
+=== Test7 HTTP calls: [{"method":"POST","url":"/auth/v1/verify","apikey":"sb_secret_TESTTESTTEST","authorization":"Bearer sb_secret_TESTTESTTEST...","sbForwardedFor":"198.51.100.23"},{"method":"GET","url":"/auth/v1/user","apikey":"sb_publishable_TESTTESTTEST","authorization":"Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6InRlc...","sbForwardedFor":null}]
+=== Test7 cookie options: [[{"name":"sb-abcdefghijklmnopqrst-auth-token","httpOnly":true,"secure":true}]]
+=== Test7 cookie contains provider_token?: false  keys: [
+  'access_token',
+  'refresh_token',
+  'user',
+  'token_type',
+  'expires_in',
+  'expires_at'
+]

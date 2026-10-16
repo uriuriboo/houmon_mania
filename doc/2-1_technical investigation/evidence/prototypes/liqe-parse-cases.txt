@@ -1,0 +1,321 @@
+[basic] "ラーメン"
+   raw : OK T<ラーメン>  [4.12ms]
+[basic] "ラーメン カフェ"
+   raw : OK AND~(T<ラーメン>, T<カフェ>)  [3.29ms]
+[basic] "ラーメン AND カフェ"
+   raw : OK AND(T<ラーメン>, T<カフェ>)  [2.69ms]
+[basic] "ラーメン OR カフェ"
+   raw : OK OR(T<ラーメン>, T<カフェ>)  [1.39ms]
+[basic] "A OR (B AND C)"
+   raw : OK OR(T<A>, P(AND(T<B>, T<C>)))  [2.89ms]
+[basic] "(A OR B) AND (C OR D)"
+   raw : OK AND(P(OR(T<A>, T<B>)), P(OR(T<C>, T<D>)))  [1.83ms]
+[basic] "((A))"
+   raw : OK P(P(T<A>))  [0.46ms]
+[basic] "A B OR C"
+   raw : OK OR(AND~(T<A>, T<B>), T<C>)  [0.89ms]
+[basic] "A OR B C"
+   raw : OK AND~(OR(T<A>, T<B>), T<C>)  [1.51ms]
+[precedence] "A AND B OR C"
+   raw : OK OR(AND(T<A>, T<B>), T<C>)  [2.98ms]
+[precedence] "A OR B AND C"
+   raw : OK AND(OR(T<A>, T<B>), T<C>)  [1.28ms]
+[precedence] "A OR B OR C"
+   raw : OK OR(OR(T<A>, T<B>), T<C>)  [1.2ms]
+[precedence] "A AND B AND C"
+   raw : OK AND(AND(T<A>, T<B>), T<C>)  [0.61ms]
+[precedence] "A B C"
+   raw : OK AND~(AND~(T<A>, T<B>), T<C>)  [0.47ms]
+[precedence] "A OR B AND C OR D"
+   raw : OK OR(AND(OR(T<A>, T<B>), T<C>), T<D>)  [1.25ms]
+[precedence] "ラーメン 渋谷 OR 新宿"
+   raw : OK OR(AND~(T<ラーメン>, T<渋谷>), T<新宿>)  [1.45ms]
+[precedence] "渋谷 OR 新宿 ラーメン"
+   raw : OK AND~(OR(T<渋谷>, T<新宿>), T<ラーメン>)  [1.42ms]
+[precedence] "A OR(B)"
+   raw : OK OR(T<A>, P(T<B>))  [1.43ms]
+[precedence] "A AND(B OR C)"
+   raw : ERR SyntaxError: Syntax error at line 1 column 9 (offset=8)  [6.68ms]
+[precedence] "(A)B"
+   raw : ERR SyntaxError: Syntax error at line 1 column 4 (offset=3)  [1.24ms]
+[precedence] "A(B)"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [1.42ms]
+[precedence] "( A OR B )"
+   raw : OK P(OR(T<A>, T<B>))  [0.8ms]
+[lowercase-op] "a and b"
+   raw : OK AND~(AND~(T<a>, T<and>), T<b>)  [0.99ms]
+[lowercase-op] "a or b"
+   raw : OK AND~(AND~(T<a>, T<or>), T<b>)  [0.36ms]
+[lowercase-op] "a && b"
+   raw : ERR SyntaxError: Syntax error at line 1 column 3 (offset=2)  [0.85ms]
+[lowercase-op] "a || b"
+   raw : ERR SyntaxError: Syntax error at line 1 column 3 (offset=2)  [0.83ms]
+[lowercase-op] "a And b"
+   raw : OK AND~(AND~(T<a>, T<And>), T<b>)  [0.68ms]
+[lowercase-op] "ラーメン or つけ麺"
+   raw : OK AND~(AND~(T<ラーメン>, T<or>), T<つけ麺>)  [0.49ms]
+[fullwidth] "ラーメン　カフェ"
+   raw : OK T<ラーメン　カフェ>  [0.22ms]
+   nfkc: "ラーメン カフェ" -> OK AND~(T<ラーメン>, T<カフェ>)  [0.25ms]
+[fullwidth] "（A OR B）"
+   raw : OK OR(T<（A>, T<B）>)  [0.45ms]
+   nfkc: "(A OR B)" -> OK P(OR(T<A>, T<B>))  [0.44ms]
+[fullwidth] "ＡＮＤ"
+   raw : OK T<ＡＮＤ>  [0.13ms]
+   nfkc: "AND" -> ERR Error: Found no parsings.  [0.27ms]
+[fullwidth] "ラーメン ＡＮＤ カフェ"
+   raw : OK AND~(AND~(T<ラーメン>, T<ＡＮＤ>), T<カフェ>)  [0.39ms]
+   nfkc: "ラーメン AND カフェ" -> OK AND(T<ラーメン>, T<カフェ>)  [0.46ms]
+[fullwidth] "ラーメン　ＯＲ　カフェ"
+   raw : OK T<ラーメン　ＯＲ　カフェ>  [0.34ms]
+   nfkc: "ラーメン OR カフェ" -> OK OR(T<ラーメン>, T<カフェ>)  [0.37ms]
+[fullwidth] "ｖｅｎｕｅ：一蘭"
+   raw : OK T<ｖｅｎｕｅ：一蘭>  [0.23ms]
+   nfkc: "venue:一蘭" -> OK F[venue:]<一蘭>  [2.82ms]
+[fullwidth] "12：30"
+   raw : OK T<12：30>  [0.9ms]
+   nfkc: "12:30" -> ERR SyntaxError: Syntax error at line 1 column 3 (offset=2)  [1.32ms]
+[fullwidth] "Ｈ＆Ｍ"
+   raw : OK T<Ｈ＆Ｍ>  [0.16ms]
+   nfkc: "H&M" -> ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [0.57ms]
+[fullwidth] "なに？"
+   raw : OK T<なに？>  [0.38ms]
+   nfkc: "なに?" -> OK T<なに?>  [0.19ms]
+[fullwidth] "ラーメン＊"
+   raw : OK T<ラーメン＊>  [0.27ms]
+   nfkc: "ラーメン*" -> OK T<ラーメン*>  [0.25ms]
+[fullwidth] "㈱ほげ"
+   raw : OK T<㈱ほげ>  [0.19ms]
+   nfkc: "(株)ほげ" -> ERR SyntaxError: Syntax error at line 1 column 4 (offset=3)  [1.02ms]
+[fullwidth] "10時～12時"
+   raw : OK T<10時～12時>  [0.4ms]
+   nfkc: "10時~12時" -> ERR SyntaxError: Syntax error at line 1 column 4 (offset=3)  [0.88ms]
+[fullwidth] "＂一蘭 渋谷＂"
+   raw : OK AND~(T<＂一蘭>, T<渋谷＂>)  [0.3ms]
+   nfkc: "\"一蘭 渋谷\"" -> OK T<"一蘭 渋谷">  [0.93ms]
+[fullwidth] "－ラーメン"
+   raw : OK T<－ラーメン>  [0.22ms]
+   nfkc: "-ラーメン" -> OK NEG(T<ラーメン>)  [0.56ms]
+[fullwidth] "ﾗｰﾒﾝ"
+   raw : OK T<ﾗｰﾒﾝ>  [0.18ms]
+   nfkc: "ラーメン" -> OK T<ラーメン>  [0.16ms]
+[fullwidth] "Ｃａｆｅ"
+   raw : OK T<Ｃａｆｅ>  [0.18ms]
+   nfkc: "Cafe" -> OK T<Cafe>  [0.29ms]
+[fullwidth] "１００円"
+   raw : OK T<１００円>  [0.17ms]
+   nfkc: "100円" -> OK T<100円>  [0.37ms]
+[fullwidth] "①"
+   raw : OK T<①>  [0.12ms]
+   nfkc: "1" -> OK T<#1>  [0.17ms]
+[quote] "\"一蘭 渋谷\""
+   raw : OK T<"一蘭 渋谷">  [0.3ms]
+[quote] "'一蘭 渋谷'"
+   raw : OK T<'一蘭 渋谷'>  [0.96ms]
+[quote] "\"一蘭 渋谷"
+   raw : ERR Error: Found no parsings.  [0.29ms]
+[quote] "'一蘭"
+   raw : ERR Error: Found no parsings.  [0.24ms]
+[quote] "一蘭\"渋谷"
+   raw : ERR SyntaxError: Syntax error at line 1 column 3 (offset=2)  [1.02ms]
+[quote] "\"一蘭 \\\"本店\\\"\""
+   raw : OK T<"一蘭 \"本店\"">  [0.59ms]
+[quote] "\"\""
+   raw : OK T<"">  [0.2ms]
+[quote] "\"AND\""
+   raw : OK T<"AND">  [0.23ms]
+[quote] "“一蘭 渋谷”"
+   raw : OK AND~(T<“一蘭>, T<渋谷”>)  [0.4ms]
+[quote] "「一蘭 渋谷」"
+   raw : OK AND~(T<「一蘭>, T<渋谷」>)  [0.34ms]
+[quote] "McDonald's"
+   raw : ERR SyntaxError: Syntax error at line 1 column 9 (offset=8)  [2.72ms]
+[quote] "Tully's Coffee"
+   raw : ERR SyntaxError: Syntax error at line 1 column 6 (offset=5)  [1.28ms]
+[quote] "\"Tully's\""
+   raw : OK T<"Tully's">  [0.24ms]
+[quote] "\"\\u0041\""
+   raw : OK T<"A">  [0.47ms]
+[quote] "\"https://example.com\""
+   raw : OK T<"https://example.com">  [0.35ms]
+[quote] "\"12:30\""
+   raw : OK T<"12:30">  [0.21ms]
+[quote] "\"a:b:c\""
+   raw : OK T<"a:b:c">  [0.25ms]
+[quote] "\"venue:一蘭\""
+   raw : OK T<"venue:一蘭">  [0.22ms]
+[quote] "\"C++\""
+   raw : OK T<"C++">  [0.11ms]
+[quote] "\"100%\""
+   raw : OK T<"100%">  [0.09ms]
+[quote] "\"foo\\bar\""
+   raw : OK T<"foo\bar">  [0.11ms]
+[quote] "\"foo\\\\bar\""
+   raw : OK T<"foo\\bar">  [0.1ms]
+[unsupported] "venue:一蘭"
+   raw : OK F[venue:]<一蘭>  [0.85ms]
+[unsupported] "name:\"x\""
+   raw : OK F[name:]<"x">  [0.33ms]
+[unsupported] "count:>5"
+   raw : OK F[count:>]<#5>  [0.38ms]
+[unsupported] "count:[1 TO 5]"
+   raw : OK F[count:]<RANGE<[1 TO 5]>>  [0.62ms]
+[unsupported] "/ramen/i"
+   raw : OK T<RE</ramen/i>>  [0.67ms]
+[unsupported] "NOT A"
+   raw : OK NOT(T<A>)  [0.38ms]
+[unsupported] "-A"
+   raw : OK NEG(T<A>)  [0.1ms]
+[unsupported] "A*"
+   raw : OK T<A*>  [0.09ms]
+[unsupported] "A?B"
+   raw : OK T<A?B>  [0.09ms]
+[unsupported] "A AND"
+   raw : ERR Error: Found no parsings.  [0.22ms]
+[unsupported] "OR B"
+   raw : ERR SyntaxError: Syntax error at line 1 column 3 (offset=2)  [0.69ms]
+[unsupported] "()"
+   raw : OK P(EMPTY)  [0.23ms]
+[unsupported] ""
+   raw : OK EMPTY  [0.02ms]
+[unsupported] "   "
+   raw : OK EMPTY  [0.02ms]
+[unsupported] "AND"
+   raw : ERR Error: Found no parsings.  [0.28ms]
+[unsupported] "A AND NOT B"
+   raw : OK AND(T<A>, NOT(T<B>))  [0.51ms]
+[unsupported] "A NOT B"
+   raw : OK AND~(T<A>, NOT(T<B>))  [1.37ms]
+[unsupported] "A -B"
+   raw : OK AND~(T<A>, NEG(T<B>))  [0.36ms]
+[unsupported] "-5"
+   raw : ERR LiqeError: Ambiguous results.  [0.71ms]
+[unsupported] "NOT"
+   raw : ERR Error: Found no parsings.  [0.22ms]
+[unsupported] "venue:"
+   raw : OK F[venue:]<EMPTY>  [0.29ms]
+[unsupported] "店名:一蘭"
+   raw : ERR SyntaxError: Syntax error at line 1 column 3 (offset=2)  [1.36ms]
+[unsupported] "\"店名\":一蘭"
+   raw : OK F["店名":]<一蘭>  [0.59ms]
+[unsupported] "\".a\":b"
+   raw : OK F[".a":]<b>  [1.05ms]
+[unsupported] "a.b:c"
+   raw : OK F[a.b:]<c>  [0.55ms]
+[unsupported] "[1 TO 5]"
+   raw : OK T<RANGE<[1 TO 5]>>  [0.23ms]
+[unsupported] "count:=5"
+   raw : OK F[count:=]<#5>  [0.53ms]
+[unsupported] "count:<=5"
+   raw : OK F[count:<=]<#5>  [0.63ms]
+[unsupported] "a:=b"
+   raw : OK F[a:=]<b>  [0.46ms]
+[unsupported] "true"
+   raw : OK T<bool:true>  [0.38ms]
+[unsupported] "null"
+   raw : OK T<null>  [0.25ms]
+[unsupported] "(A"
+   raw : ERR Error: Found no parsings.  [0.19ms]
+[unsupported] "A)"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [0.98ms]
+[unsupported] "A ()"
+   raw : OK AND~(T<A>, P(EMPTY))  [0.26ms]
+[unsupported] "(A OR )"
+   raw : ERR SyntaxError: Syntax error at line 1 column 7 (offset=6)  [1.97ms]
+[unsupported] "A~2"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [1.17ms]
+[unsupported] "A^2"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [1.04ms]
+[unsupported] "+A"
+   raw : ERR SyntaxError: Syntax error at line 1 column 1 (offset=0)  [0.58ms]
+[unsupported] "ラーメン*"
+   raw : OK T<ラーメン*>  [0.89ms]
+[symbol] "100%"
+   raw : ERR SyntaxError: Syntax error at line 1 column 4 (offset=3)  [0.51ms]
+[symbol] "a_b"
+   raw : OK T<a_b>  [0.14ms]
+[symbol] "C++"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [0.51ms]
+[symbol] "c#"
+   raw : OK T<c#>  [0.19ms]
+[symbol] "foo\\bar"
+   raw : ERR SyntaxError: Syntax error at line 1 column 4 (offset=3)  [1.04ms]
+[symbol] "東京都渋谷区"
+   raw : OK T<東京都渋谷区>  [0.23ms]
+[symbol] "https://example.com"
+   raw : ERR Error: Found no parsings.  [0.73ms]
+[symbol] "http:example"
+   raw : OK F[http:]<example>  [0.48ms]
+[symbol] "12:30"
+   raw : ERR SyntaxError: Syntax error at line 1 column 3 (offset=2)  [0.82ms]
+[symbol] "a:b:c"
+   raw : ERR SyntaxError: Syntax error at line 1 column 4 (offset=3)  [0.66ms]
+[symbol] "@user"
+   raw : OK T<@user>  [0.2ms]
+[symbol] "#hash"
+   raw : OK T<#hash>  [0.17ms]
+[symbol] "H&M"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [0.85ms]
+[symbol] "a/b"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [0.9ms]
+[symbol] "ラーメン/つけ麺"
+   raw : ERR SyntaxError: Syntax error at line 1 column 5 (offset=4)  [0.61ms]
+[symbol] "a,b"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [1.34ms]
+[symbol] "Hello!"
+   raw : ERR SyntaxError: Syntax error at line 1 column 6 (offset=5)  [1.33ms]
+[symbol] "a=b"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [1.25ms]
+[symbol] "7-Eleven"
+   raw : OK T<7-Eleven>  [0.45ms]
+[symbol] "セブン-イレブン"
+   raw : OK T<セブン-イレブン>  [0.28ms]
+[symbol] "3丁目"
+   raw : OK T<3丁目>  [0.22ms]
+[symbol] "1号店"
+   raw : OK T<1号店>  [1.28ms]
+[symbol] "100"
+   raw : OK T<#100>  [0.34ms]
+[symbol] "3.14"
+   raw : OK T<#3.14>  [0.29ms]
+[symbol] "1.2.3"
+   raw : ERR SyntaxError: Syntax error at line 1 column 4 (offset=3)  [0.43ms]
+[symbol] "2024-01-01"
+   raw : OK T<2024-01-01>  [0.36ms]
+[symbol] "a.b"
+   raw : OK T<a.b>  [0.2ms]
+[symbol] "$100"
+   raw : OK T<$100>  [0.31ms]
+[symbol] "café"
+   raw : OK T<café>  [0.15ms]
+[symbol] "🍜"
+   raw : OK T<🍜>  [0.08ms]
+[symbol] "ラーメン🍜"
+   raw : OK T<ラーメン🍜>  [0.13ms]
+[symbol] "𠮷野家"
+   raw : OK T<𠮷野家>  [0.23ms]
+[whitespace] "a\tb"
+   raw : OK AND~(T<a>, T<b>)  [0.14ms]
+[whitespace] "a\nb"
+   raw : OK AND~(T<a>, T<b>)  [0.49ms]
+[whitespace] "a\r\nb"
+   raw : ERR SyntaxError: Syntax error at line 1 column 2 (offset=1)  [1ms]
+[whitespace] "a b"
+   raw : OK T<a b>  [0.19ms]
+   nfkc: "a b" -> OK AND~(T<a>, T<b>)  [0.18ms]
+[whitespace] "a​b"
+   raw : OK T<a​b>  [0.15ms]
+[whitespace] " a  OR   b "
+   raw : OK OR(T<a>, T<b>)  [0.51ms]
+[large] 1万文字の単一語 (あ x10000)
+   raw : OK T<ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ...  [6733.48ms]
+[large] 1万文字 = "ラーメン " x2000 (暗黙AND 2000語)
+   raw : OK AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(AND~(...  [140.54ms]
+[large] 約1万文字 = "a OR " x2000
+   raw : OK OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR(OR...  [192.41ms]
+[large] 深さ200の括弧 ((((A))))
+   raw : OK P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(P(...  [7.17ms]
+[large] 深さ200の入れ子 (w0 OR (w1 OR (...)))
+   raw : OK P(OR(T<w0>, P(OR(T<w1>, P(OR(T<w2>, P(OR(T<w3>, P(OR(T<w4>, P(OR(T<w5>, P(OR(T<w6>, P(OR(T<w7>, P(OR(T<w8>, P(OR(T<w9>, P(OR(T<w10>, P(OR(T<w11>, P(OR(T<w12>, P(OR(T<w13>, P(OR(T<w14>, P(OR(T<w15>, P(...  [19ms]
+
+liqe 3.8.7 / node v20.11.1 / 150 cases -> C:\Users\Yamaoka\AppData\Local\Temp\claude\c--Users-Yamaoka-Code-web-swarm-search\2476ae5c-dc8e-44ea-b566-5413e0032909\scratchpad\liqe-scripts\out\01-parse-cases.json

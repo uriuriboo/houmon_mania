@@ -1,0 +1,28 @@
+
+[ILIKE] 全件走査(該当なし語の OR = 全語を全行で評価する最悪ケース)の count(*) 時間
+  OR  1 語: median=108.5ms   例: (search_text ILIKE $2)
+  OR  2 語: median=219.8ms   例: 
+  OR  5 語: median=489.7ms   例: 
+  OR 10 語: median=924.2ms   例: 
+  OR 20 語: median=1797.9ms   例: 
+[ILIKE] AND(先頭語が全行ヒット → 後続語も評価される)
+  AND  1 語: median=134.6ms
+  AND  5 語: median=176.3ms
+  AND 10 語: median=161.3ms
+
+[LIKE_LOWER] 全件走査(該当なし語の OR = 全語を全行で評価する最悪ケース)の count(*) 時間
+  OR  1 語: median=27.5ms   例: (search_text LIKE lower($2))
+  OR  2 語: median=43.2ms   例: 
+  OR  5 語: median=84.5ms   例: 
+  OR 10 語: median=148.4ms   例: 
+  OR 20 語: median=275.0ms   例: 
+[LIKE_LOWER] AND(先頭語が全行ヒット → 後続語も評価される)
+  AND  1 語: median=29.5ms
+  AND  5 語: median=37.7ms
+  AND 10 語: median=34.7ms
+件数一致 OK: ラーメン ILIKE=15000 LIKE_LOWER=15000
+件数一致 OK: ＣＯＦＦＥＥ ILIKE=0 LIKE_LOWER=0
+件数一致 OK: コーヒー OR 吉野家 ILIKE=27500 LIKE_LOWER=27500
+件数一致 OK: "うまかった!" ILIKE=7142 LIKE_LOWER=7142
+件数一致 OK: Café ILIKE=0 LIKE_LOWER=0
+件数一致 OK: 渋谷 (ラーメン OR カフェ) ILIKE=10717 LIKE_LOWER=10717

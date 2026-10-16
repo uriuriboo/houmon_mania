@@ -1,0 +1,48 @@
+﻿
+## API正常 / M1(新規+窓内遡及+窓内削除)
+  backfill_offset: missing=0 stale=- calls=25
+  backfill_before: missing=0 stale=- calls=25
+  backfill_hybrid: missing=0 stale=- calls=25 before
+  diff_A_offset_stop_at_known: missing=1 stale=1 calls=1
+  diff_B_afterTs_noMargin: missing=1 stale=1 calls=1
+  diff_H_window14d_plus_count: missing=0 stale=0 calls=1 {"added":6,"deleted":1,"reconciled":false}
+
+## API正常 / M2(+窓外遡及)
+  backfill_offset: missing=0 stale=- calls=25
+  backfill_before: missing=0 stale=- calls=25
+  backfill_hybrid: missing=0 stale=- calls=25 before
+  diff_A_offset_stop_at_known: missing=2 stale=1 calls=1
+  diff_B_afterTs_noMargin: missing=2 stale=1 calls=1
+  diff_H_window14d_plus_count: missing=0 stale=0 calls=26 {"added":7,"deleted":1,"reconciled":true}
+
+## API正常 / M3(+窓外削除で件数相殺)
+  backfill_offset: missing=0 stale=- calls=25
+  backfill_before: missing=0 stale=- calls=25
+  backfill_hybrid: missing=0 stale=- calls=25 before
+  diff_A_offset_stop_at_known: missing=2 stale=2 calls=1
+  diff_B_afterTs_noMargin: missing=2 stale=2 calls=1
+  diff_H_window14d_plus_count: missing=1 stale=1 calls=1 {"added":6,"deleted":1,"reconciled":false}
+
+## offset が 300 超で先頭ページを返す / M2
+  backfill_offset: missing=5563 stale=- calls=3 no-progress(offset)
+  backfill_before: missing=0 stale=- calls=25
+  backfill_hybrid: missing=0 stale=- calls=25 before
+  diff_A_offset_stop_at_known: missing=2 stale=1 calls=1
+  diff_B_afterTs_noMargin: missing=2 stale=1 calls=1
+  diff_H_window14d_plus_count: missing=0 stale=0 calls=26 {"added":7,"deleted":1,"reconciled":true}
+
+## beforeTimestamp が黙って無視される / M2
+  backfill_offset: missing=0 stale=- calls=25
+  backfill_before: missing=5813 stale=- calls=2 no-progress(before)
+  backfill_hybrid: missing=0 stale=- calls=27 before->offset
+  diff_A_offset_stop_at_known: missing=2 stale=1 calls=1
+  diff_B_afterTs_noMargin: missing=2 stale=1 calls=1
+  diff_H_window14d_plus_count: missing=0 stale=0 calls=28 {"added":7,"deleted":1,"reconciled":true}
+
+## afterTimestamp が黙って無視される / M2
+  backfill_offset: missing=0 stale=- calls=25
+  backfill_before: missing=0 stale=- calls=25
+  backfill_hybrid: missing=0 stale=- calls=25 before
+  diff_A_offset_stop_at_known: missing=2 stale=1 calls=1
+  diff_B_afterTs_noMargin: missing=1 stale=1 calls=2
+  diff_H_window14d_plus_count: missing=0 stale=0 calls=26 {"added":7,"deleted":1,"reconciled":true}

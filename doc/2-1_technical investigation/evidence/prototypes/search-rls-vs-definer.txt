@@ -1,0 +1,62 @@
+%ラーメン%         (0) RLS + 素直なクエリ                   median=127.7ms rows=50
+%ラーメン%         (a) RLS + OFFSET 0 フェンス            median=103.6ms rows=50
+%ラーメン%         (b) SECURITY DEFINER + 明示 user_id  median=6.9ms rows=50
+%渋谷%           (0) RLS + 素直なクエリ                   median=155.2ms rows=50
+%渋谷%           (a) RLS + OFFSET 0 フェンス            median=85.9ms rows=50
+%渋谷%           (b) SECURITY DEFINER + 明示 user_id  median=4.0ms rows=50
+%100\%%        (0) RLS + 素直なクエリ                   median=3.8ms rows=50
+%100\%%        (a) RLS + OFFSET 0 フェンス            median=4.0ms rows=50
+%100\%%        (b) SECURITY DEFINER + 明示 user_id  median=4.5ms rows=50
+%存在しない語%       (0) RLS + 素直なクエリ                   median=116.3ms rows=0
+%存在しない語%       (a) RLS + OFFSET 0 フェンス            median=166.9ms rows=0
+%存在しない語%       (b) SECURITY DEFINER + 明示 user_id  median=206.4ms rows=0
+
+EXPLAIN (a) %ラーメン%:
+  Limit  (cost=10469.45..11219.45 rows=5 width=6) (actual time=138.211..138.444 rows=50.00 loops=1)
+    Buffers: shared hit=2923, temp read=399 written=568
+    ->  Subquery Scan on s  (cost=10469.45..11219.45 rows=5 width=6) (actual time=138.205..138.413 rows=50.00 loops=1)
+          Filter: (s.search_text ~~* '%ラーメン%'::text)
+          Rows Removed by Filter: 33
+          Buffers: shared hit=2923, temp read=399 written=568
+          ->  Sort  (cost=10469.45..10594.45 rows=50000 width=83) (actual time=138.187..138.223 rows=83.00 loops=1)
+                Sort Key: c.created_at DESC, c.id DESC
+                Sort Method: external merge  Disk: 4536kB
+                Buffers: shared hit=2923, temp read=399 written=568
+                InitPlan 1
+                  ->  Result  (cost=0.00..0.02 rows=1 width=16) (actual time=0.006..0.007 rows=1.00 loops=1)
+                InitPlan 2
+                  ->  Result  (cost=0.00..0.02 rows=1 width=16) (actual time=0.061..0.066 rows=1.00 loops=1)
+                ->  Result  (cost=0.00..4173.00 rows=50000 width=83) (actual time=0.121..82.049 rows=50000.00 loops=1)
+                      One-Time Filter: ((InitPlan 2).col1 = (InitPlan 1).col1)
+                      Buffers: shared hit=2923
+                      ->  Seq Scan on checkins c  (cost=0.00..4173.00 rows=50000 width=83) (actual time=0.018..45.258 rows=50000.00 loops=1)
+                            Filter: ((deleted_at IS NULL) AND (user_id = (InitPlan 1).col1))
+                            Rows Removed by Filter: 50000
+                            Buffers: shared hit=2923
+  Planning Time: 0.314 ms
+  Execution Time: 138.685 ms
+
+EXPLAIN (a) %存在しない語%:
+  Limit  (cost=10469.45..11219.45 rows=5 width=6) (actual time=267.202..267.208 rows=0.00 loops=1)
+    Buffers: shared hit=2923, temp read=567 written=568
+    ->  Subquery Scan on s  (cost=10469.45..11219.45 rows=5 width=6) (actual time=267.199..267.205 rows=0.00 loops=1)
+          Filter: (s.search_text ~~* '%存在しない語%'::text)
+          Rows Removed by Filter: 50000
+          Buffers: shared hit=2923, temp read=567 written=568
+          ->  Sort  (cost=10469.45..10594.45 rows=50000 width=83) (actual time=137.742..159.089 rows=50000.00 loops=1)
+                Sort Key: c.created_at DESC, c.id DESC
+                Sort Method: external merge  Disk: 4536kB
+                Buffers: shared hit=2923, temp read=567 written=568
+                InitPlan 1
+                  ->  Result  (cost=0.00..0.02 rows=1 width=16) (actual time=0.002..0.003 rows=1.00 loops=1)
+                InitPlan 2
+                  ->  Result  (cost=0.00..0.02 rows=1 width=16) (actual time=0.006..0.007 rows=1.00 loops=1)
+                ->  Result  (cost=0.00..4173.00 rows=50000 width=83) (actual time=0.028..78.284 rows=50000.00 loops=1)
+                      One-Time Filter: ((InitPlan 2).col1 = (InitPlan 1).col1)
+                      Buffers: shared hit=2923
+                      ->  Seq Scan on checkins c  (cost=0.00..4173.00 rows=50000 width=83) (actual time=0.014..44.328 rows=50000.00 loops=1)
+                            Filter: ((deleted_at IS NULL) AND (user_id = (InitPlan 1).col1))
+                            Rows Removed by Filter: 50000
+                            Buffers: shared hit=2923
+  Planning Time: 0.319 ms
+  Execution Time: 267.395 ms
