@@ -4,7 +4,11 @@ import { PageContainer, PageTitle } from '@/components/ui/misc';
 import { APP_NAME } from '@/lib/constants';
 import { ISSUES_URL } from '@/lib/legal';
 
-export const metadata: Metadata = { title: 'プライバシーポリシー' };
+export const metadata: Metadata = {
+  description:
+    '読み込んだデータはブラウザの中だけに保存し、サーバーには送りません。読み込むデータ、外部への通信、検索語と閲覧履歴、データの削除など、取り扱いを説明します。',
+  title: 'プライバシーポリシー',
+};
 
 /** プライバシーポリシー(SCR-07、9.5 に挙げる記載事項) */
 export default function PrivacyPage() {
@@ -83,12 +87,12 @@ export default function PrivacyPage() {
           までお知らせください。不具合のご連絡の際は、画面に表示された「エラーの種類」を添えてください。Issue は公開されるため、チェックインの内容(店名・コメント・位置など)は書かないでください。
         </p>
 
-        <h2>外部サイトへのリンク</h2>
+        <h2>10. 外部サイトへのリンク</h2>
         <p>
           本アプリには、作者の GitHub リポジトリと技術ブログ、データのダウンロードを申し込む Foursquare のプライバシー設定のページへのリンクがあります。リンクを押したときだけ、そのサイトに移動します(このとき、どのページから来たかの情報は送りません)。リンク先のサイトでは、広告や Cookie が使われることがあります。リンク先の取り扱いには、このポリシーは及びません。
         </p>
 
-        <h2>10. 改定</h2>
+        <h2>11. 改定</h2>
         <p>内容を変更する場合は、このページでお知らせします。</p>
         <p className="text-sm text-stone-600 dark:text-stone-400">制定: 2026年10月22日</p>
       </div>

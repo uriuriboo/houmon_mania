@@ -23,7 +23,7 @@ MVP を実装済み(2026-10-22)。公開後に確認・更新する項目は [do
 
 ## 開発
 
-Node.js 24(`.nvmrc`)。22.12 以上でも動く。
+Node.js 24(`.nvmrc`)。22.13 以上でも動く(ESLint 10 の要件)。
 
 ```bash
 npm ci
@@ -46,10 +46,12 @@ npm run fixture -- --count 5000 --folder   # 展開済みのフォルダとし�
 
 1. Vercel でこのリポジトリをインポートする。Framework Preset は `vercel.json` の `"framework": null`(Other)が使われ、`npm run build` の出力 `out/` をそのまま配信する。
 2. 次の機能は**有効にしない**(第三者のスクリプトを読み込まない方針のため。基本設計 P-7):
-   - Web Analytics / Speed Insights
-   - Vercel Toolbar(プレビューのデプロイに差し込まれるスクリプト。Project Settings → General で無効にする。有効なままだと CSP でブロックされ、コンソールにエラーが出る)
-3. GitHub と Vercel のアカウントは2段階認証を必須にし、main ブランチを保護する(10.1)。
-4. ドメインは公開前に決める(保存データはドメインごとに別。後から変えると利用者は読み込み直しになる。17章 D-8)。
+   - Vercel Toolbar(プレビューのデプロイに差し込まれるスクリプト。Project Settings で無効にする。有効なままだと CSP でブロックされ、コンソールにエラーが出る)
+   - Speed Insights
+   - Web Analytics は、アプリ側の対応(トップ・このアプリについて・プライバシーポリシーの3ページだけに入れる、[TODO](doc/TODO.md) の # 16・17)と同時に有効にする。それまでは無効のまま
+3. GitHub と Vercel のアカウントは2段階認証を必須にし、main ブランチを保護する(10.1)。PR を必須にし、CI(`.github/workflows/ci.yml`。PR のときだけ動く)が通ることをマージの条件にする。依存の更新は Dependabot(`.github/dependabot.yml`)が PR を作る。
+4. Vercel のビルドの Node は、`package.json` の `engines`(22.13 以上)から選ばれる。CI は `.nvmrc`(24)を使う。
+5. ドメインは公開前に決める(保存データはドメインごとに別。後から変えると利用者は読み込み直しになる。17章 D-8)。
 
 Hobby プランは非商用の個人利用が条件で、本アプリの前提(非商用)と合う。
 

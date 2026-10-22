@@ -6,7 +6,11 @@ import { SearchHelpContent } from '@/features/search/SearchHelp';
 import { APP_NAME, APP_NAME_JA } from '@/lib/constants';
 import { BLOG_URL, ISSUES_URL, REPO_URL, TRADEMARK_NOTICE, UNOFFICIAL_NOTICE } from '@/lib/legal';
 
-export const metadata: Metadata = { title: 'このアプリについて' };
+export const metadata: Metadata = {
+  description:
+    'Swarm のチェックイン履歴を検索する非公式ツールの使い方、できること・できないこと、検索の書き方、Foursquare の規約との関係、よくある質問。',
+  title: 'このアプリについて',
+};
 
 export default function AboutPage() {
   return (

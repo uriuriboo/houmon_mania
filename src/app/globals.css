@@ -20,8 +20,9 @@
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-orange-600 dark:outline-orange-400;
   }
+  /* 文中のリンクは色だけでなく下線でも区別する(WCAG 1.4.1)。ボタンの見た目のリンクやメニューは no-underline で外す */
   a {
-    @apply text-orange-800 underline-offset-2 hover:underline dark:text-orange-300;
+    @apply text-orange-800 underline underline-offset-2 hover:decoration-2 dark:text-orange-300;
   }
   dialog::backdrop {
     background: rgb(0 0 0 / 0.45);
