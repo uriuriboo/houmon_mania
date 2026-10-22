@@ -1,0 +1,60 @@
+@import 'tailwindcss';
+
+/*
+ * 配色: ニュートラル(stone)とアクセント1色(暖色のオレンジ)。Swarm / Foursquare のブランドカラーは使わない(5.5)。
+ * ダークモードは OS の設定に追従する(Tailwind の dark: は prefers-color-scheme)。
+ * 文字: Web フォントは使わず、システムフォント(system-ui は先頭にしない)。
+ */
+@theme {
+  --font-sans: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Noto Sans CJK JP', Meiryo, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-orange-600 dark:outline-orange-400;
+  }
+  a {
+    @apply text-orange-800 underline-offset-2 hover:underline dark:text-orange-300;
+  }
+  dialog::backdrop {
+    background: rgb(0 0 0 / 0.45);
+  }
+}
+
+@layer components {
+  .prose-ja h2 {
+    @apply mt-10 mb-3 text-lg font-bold;
+  }
+  .prose-ja h3 {
+    @apply mt-6 mb-2 font-bold;
+  }
+  .prose-ja p {
+    @apply my-3 leading-relaxed;
+  }
+  .prose-ja ul {
+    @apply my-3 list-disc space-y-1 pl-6 leading-relaxed;
+  }
+  .prose-ja ol {
+    @apply my-3 list-decimal space-y-1 pl-6 leading-relaxed;
+  }
+  .prose-ja table {
+    @apply my-4 w-full border-collapse text-sm;
+  }
+  .prose-ja th,
+  .prose-ja td {
+    @apply border border-stone-300 px-3 py-2 text-left align-top dark:border-stone-700;
+  }
+  .prose-ja th {
+    @apply bg-stone-100 font-semibold dark:bg-stone-900;
+  }
+  .prose-ja code {
+    @apply rounded bg-stone-200 px-1 py-0.5 text-[0.9em] dark:bg-stone-800;
+  }
+}
