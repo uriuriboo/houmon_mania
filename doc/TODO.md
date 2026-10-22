@@ -66,7 +66,7 @@
 
 | # | やること | 担当 |
 |---|---|---|
-| 19 | **GitHub Actions** の CI(push・PR ごとに typecheck・lint・単体テスト・build。E2E も可) | 私 |
+| 19 | **GitHub Actions** の CI(PR のときだけ。typecheck・lint・単体テスト・build・E2E)。設定は `.github/workflows/ci.yml`。**作成済み。push すると動く**。GitHub での実行はまだ確かめていない。動いたら、main ブランチの保護で「CI が通ること」をマージの条件にする | 済(push 待ち) |
 | 20 | **Dependabot** で、依存の更新を PR にする(基本設計 10.1。2026-10-22 決定)。設定は `.github/dependabot.yml`(週1回、公開から 3〜14 日待つ、開発用の依存はまとめる)。**設定ファイルは作成済み。push すると有効になる**。マージは CI が通ってから | 済(push 待ち) |
 | 21 | **axe**(`@axe-core/playwright`)で、E2E の中でアクセシビリティを検査(目標 WCAG 2.2 AA) | 私 |
 | 22 | デプロイ後に **securityheaders.com / Mozilla Observatory** でヘッダを採点(S-4) | あなた |
