@@ -39,6 +39,8 @@ doc/
 │  ├─ 2-1_technical investigation_API方式の記録.md  報告書 別冊(1〜14章)
 │  └─ evidence/                       根拠資料(所見・調査メモ・試作コード・検証スクリプト)
 ├─ 3_detailed design/                 実装メモ(確定した値・基本設計からの変更点・テスト結果)
+├─ 4_maintenance/                     メンテナンス項目(定期確認・形式変更への対応・更新後の確認)
+├─ TODO.md                            やることリスト(公開まで・アクセス解析・実機確認)
 └─ archive/                           旧版
    ├─ v1.0_API-sync/                  要件定義書 v1.0(API 同期方式の原本)
    ├─ v0.9_API-sync/                  基本設計書 v0.9(API 同期方式)

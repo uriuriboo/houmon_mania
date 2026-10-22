@@ -21,7 +21,8 @@ test-results/
 # OS・エディタ
 .DS_Store
 Thumbs.db
-.vscode/
+.vscode/*
+!.vscode/tasks.json
 .idea/
 
 # ルート直下の実データ置き場(src/app/data/ などのソースは対象外にするため先頭に / を付ける)

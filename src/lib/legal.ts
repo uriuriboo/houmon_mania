@@ -12,5 +12,11 @@ export const UNOFFICIAL_NOTICE =
 
 export const TRADEMARK_NOTICE = 'Foursquare® および Swarm™ は Foursquare Labs, Inc. の商標です。';
 
-/** 問い合わせ先(公開前に設定する。17章 D-8 とあわせて決める) */
-export const CONTACT = 'GitHub リポジトリの Issues';
+/** ソースコードのリポジトリ(MIT License で公開) */
+export const REPO_URL = 'https://github.com/uriuriboo/swarm_search';
+
+/** 作者の技術ブログ(アフィリエイト広告を含む場合がある。リンクに計測用のパラメータは付けない) */
+export const BLOG_URL = 'https://mikagesumiyoshitechblog.netlify.app/';
+
+/** 問い合わせ先(不具合・要望)。Issue にはチェックインの内容を書かないよう案内する */
+export const ISSUES_URL = `${REPO_URL}/issues`;

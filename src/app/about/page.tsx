@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageContainer, PageTitle } from '@/components/ui/misc';
+import { FSQ_PRIVACY_SETTINGS_URL } from '@/features/import/ImportGuide';
 import { SearchHelpContent } from '@/features/search/SearchHelp';
 import { APP_NAME, APP_NAME_JA } from '@/lib/constants';
-import { TRADEMARK_NOTICE, UNOFFICIAL_NOTICE } from '@/lib/legal';
+import { BLOG_URL, ISSUES_URL, REPO_URL, TRADEMARK_NOTICE, UNOFFICIAL_NOTICE } from '@/lib/legal';
 
 export const metadata: Metadata = { title: 'このアプリについて' };
 
@@ -41,7 +42,13 @@ export default function AboutPage() {
 
         <h2>使い方</h2>
         <ol>
-          <li>Swarm アプリの「設定 → プライバシー設定 → Initiate Data Download Request」から、データのダウンロードを申請します。</li>
+          <li>
+            Swarm アプリの「プロフィール → 設定(歯車)→ プライバシー設定 → Initiate Data Download Request」、または{' '}
+            <a href={FSQ_PRIVACY_SETTINGS_URL} target="_blank" rel="noopener noreferrer">
+              Foursquare のプライバシー設定のページ
+            </a>{' '}
+            から、データのダウンロードを申請します。詳しい手順は <Link href="/import">データの取り込み</Link> にあります。
+          </li>
           <li>数日で届くメールのリンクから ZIP ファイルをダウンロードし、<Link href="/import">データの取り込み</Link> で読み込みます。</li>
           <li><Link href="/search">検索</Link> で店名・コメントを入力します。</li>
         </ol>
@@ -89,9 +96,29 @@ export default function AboutPage() {
         <h3>「カフェ」で検索しても、カフェが見つかりません</h3>
         <p>エクスポートにカテゴリが含まれないため、店名に「カフェ」が入っている店だけが見つかります。店名やコメントの言葉で検索してください。</p>
 
-        <h2>ライセンス</h2>
+        <h2>ツールについて</h2>
+        <p>
+          このツールの作り方や技術的な解説は、作者の{' '}
+          <a href={BLOG_URL} target="_blank" rel="noopener noreferrer">
+            技術ブログ
+          </a>{' '}
+          で公開する予定です。リンク先は別のサイトで、広告が含まれる場合があります。
+        </p>
+
+        <h2>ソースコード・ライセンス</h2>
         <p>
           MIT License で公開しています。ソフトウェアは現状のまま提供し、使用によって生じたいかなる損害についても、作者は責任を負いません。
+        </p>
+        <p>
+          ソースコードは{' '}
+          <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+            GitHub
+          </a>{' '}
+          で読めます。「データを外に送らない」ことは、コードで確かめられます。不具合・要望は{' '}
+          <a href={ISSUES_URL} target="_blank" rel="noopener noreferrer">
+            Issues
+          </a>{' '}
+          へ(チェックインの内容は書かないでください)。
         </p>
       </div>
     </PageContainer>

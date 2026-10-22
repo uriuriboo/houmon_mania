@@ -8,7 +8,7 @@ Swarm(Foursquare)のチェックイン履歴を、店名・コメントなどの
 
 ## 状態
 
-MVP を実装済み(2026-10-22)。設計資料は [doc/README.md](doc/README.md)、実装で決めたこと・基本設計からの変更点は [doc/3_detailed design/00_実装メモ.md](doc/3_detailed%20design/00_%E5%AE%9F%E8%A3%85%E3%83%A1%E3%83%A2.md)。
+MVP を実装済み(2026-10-22)。公開後に確認・更新する項目は [doc/4_maintenance/メンテナンス項目.md](doc/4_maintenance/%E3%83%A1%E3%83%B3%E3%83%86%E3%83%8A%E3%83%B3%E3%82%B9%E9%A0%85%E7%9B%AE.md)。設計資料は [doc/README.md](doc/README.md)、実装で決めたこと・基本設計からの変更点は [doc/3_detailed design/00_実装メモ.md](doc/3_detailed%20design/00_%E5%AE%9F%E8%A3%85%E3%83%A1%E3%83%A2.md)。
 
 ## Foursquare の規約との関係
 

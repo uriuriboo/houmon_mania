@@ -1,13 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, RefreshCw } from 'lucide-react';
+import { BookOpen, Menu, RefreshCw } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { GithubIcon } from '@/components/github-icon';
 import { Logo } from '@/components/logo';
 import { useAppState } from '@/features/app/AppStateProvider';
 import { APP_NAME } from '@/lib/constants';
 import { formatDeviceShortDate, formatLocalShortDate } from '@/lib/datetime';
+import { BLOG_URL, REPO_URL } from '@/lib/legal';
 
 const MENU = [
   { href: '/search', label: '検索' },
@@ -16,6 +18,9 @@ const MENU = [
   { href: '/about', label: 'このアプリについて' },
   { href: '/privacy', label: 'プライバシーポリシー' },
 ] as const;
+
+const iconLinkClass =
+  'inline-flex items-center rounded-lg p-2 text-stone-700 no-underline hover:bg-stone-200/70 hover:no-underline dark:text-stone-300 dark:hover:bg-stone-800';
 
 export function SiteHeader() {
   const { meta, status } = useAppState();
@@ -72,6 +77,14 @@ export function SiteHeader() {
               <span className="sr-only sm:hidden">データを更新</span>
             </Link>
           )}
+          <a href={BLOG_URL} target="_blank" rel="noopener noreferrer" className={iconLinkClass}>
+            <BookOpen className="size-5" aria-hidden />
+            <span className="sr-only">作者の技術ブログ(新しいタブで開きます)</span>
+          </a>
+          <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className={iconLinkClass}>
+            <GithubIcon />
+            <span className="sr-only">GitHub のリポジトリ(新しいタブで開きます)</span>
+          </a>
           <div ref={menuRef} className="relative">
             <button
               type="button"

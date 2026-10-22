@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, statusBarStyle: 'default', title: APP_NAME },
   formatDetection: { address: false, email: false, telephone: false },
   referrer: 'no-referrer',
+  // ダークモードは OS の設定に追従する(5.5)。Dark Reader などの拡張機能に二重に色を変えさせない
+  other: { 'darkreader-lock': 'true' },
 };
 
 export const viewport: Viewport = {
@@ -36,7 +38,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ja">
+    // 拡張機能が <html> の属性を書き換えても、ハイドレーションの警告を出さない(1段目の属性だけが対象)
+    <html lang="ja" suppressHydrationWarning>
       <body className="flex min-h-dvh flex-col font-sans">
         <AppStateProvider>
           <ToastProvider>
