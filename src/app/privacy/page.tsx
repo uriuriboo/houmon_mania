@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageContainer, PageTitle } from '@/components/ui/misc';
+import { WebAnalytics } from '@/components/web-analytics';
 import { APP_NAME } from '@/lib/constants';
 import { ISSUES_URL } from '@/lib/legal';
 
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <PageContainer>
+      <WebAnalytics />
       <PageTitle>プライバシーポリシー</PageTitle>
       <div className="prose-ja">
         <p>{APP_NAME}(以下「本アプリ」)における、データの取り扱いを説明します。</p>
@@ -44,7 +46,10 @@ export default function PrivacyPage() {
             <strong>店ページへのリンク</strong>:「Foursquare で店を見る」を押すと、Foursquare のサイトが開きます。
           </li>
           <li>検索は端末の中だけで行います。検索語や閲覧したチェックインは、どこにも送りません。</li>
-          <li>それ以外の外部への通信は行いません。外部のスクリプトは読み込みません。</li>
+          <li>
+            <strong>訪問者数の計測</strong>: トップ・このアプリについて・このページの 3 ページだけ、Vercel Web Analytics で訪問者数を数えます(6 章)。
+          </li>
+          <li>それ以外の外部への通信は行いません。検索・取り込み・データ管理のページでは、スクリプトの読み込みも、計測の送信もありません。</li>
         </ul>
 
         <h2>4. サイトの配信で残る記録</h2>
@@ -60,8 +65,19 @@ export default function PrivacyPage() {
           など)を使っている場合は、同期先にも保存されることがあります。
         </p>
 
-        <h2>6. 解析ツール・広告・Cookie</h2>
-        <p>使いません。</p>
+        <h2>6. 訪問者数の計測・広告・Cookie</h2>
+        <ul>
+          <li>
+            トップ・このアプリについて・このページの <strong>3 ページだけ</strong>、Vercel の「Vercel Web Analytics」で、訪問者数や参照元、国、端末の種類などを集計します。
+          </li>
+          <li>
+            Cookie は使いません。個人を特定する情報は集めず、広告にも使いません。送るのは、開いたページのパス(<code>#</code> より前の部分)と、ブラウザの種類などの通常のアクセス情報です。
+          </li>
+          <li>
+            <strong>検索・取り込み・データ管理のページでは、計測をしません</strong>。読み込んだチェックイン、検索語、位置情報は、計測の対象にも送信の対象にもなりません。
+          </li>
+          <li>広告は表示せず、広告の目的でのデータの利用もしません。</li>
+        </ul>
 
         <h2>7. 同じブラウザを使う人について</h2>
         <p>
@@ -94,7 +110,7 @@ export default function PrivacyPage() {
 
         <h2>11. 改定</h2>
         <p>内容を変更する場合は、このページでお知らせします。</p>
-        <p className="text-sm text-stone-600 dark:text-stone-400">制定: 2026年10月22日</p>
+        <p className="text-sm text-stone-600 dark:text-stone-400">制定: 2026年10月22日 / 改定: 2026年10月23日(訪問者数の計測を追加)</p>
       </div>
     </PageContainer>
   );

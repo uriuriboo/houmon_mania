@@ -14,6 +14,8 @@ export type Watch = { cspViolations: string[]; consoleErrors: string[]; external
 export const watchPage = async (page: Page): Promise<Watch> => {
   const w: Watch = { consoleErrors: [], cspViolations: [], externalRequests: [] };
   await page.route(/^https:\/\/[a-z0-9-]+\.4sqi\.net\//u, (route) => route.fulfill({ body: PIXEL, contentType: 'image/png', status: 200 }));
+  // Vercel Web Analytics のスクリプト(本番では Vercel が /_vercel/insights/ で配信する)。ローカルの配信には無いため、空のものを返す
+  await page.route('**/_vercel/insights/**', (route) => route.fulfill({ body: '', contentType: 'text/javascript', status: 200 }));
   page.on('request', (req) => {
     const u = new URL(req.url());
     if (u.hostname !== 'localhost' && !u.hostname.endsWith('.4sqi.net') && u.protocol !== 'data:' && u.protocol !== 'blob:') w.externalRequests.push(req.url());
