@@ -1,4 +1,4 @@
-# visit_mania(足あと検索)
+# Visit_Mania(足あと検索)
 
 Swarm(Foursquare)のチェックイン履歴を、店名・コメントなどのキーワードで AND/OR 検索する Web アプリ。
 
