@@ -1,0 +1,40 @@
+# 依存の更新を PR にする(基本設計 10.1、メンテナンス項目 1章)
+#
+# - 公開から数日待ってから取り込む(cooldown)。乗っ取られたパッケージの悪い版は、数日で見つかって取り下げられることが多いため
+# - 通知を減らすため、開発用の依存のマイナー・パッチ更新はまとめる
+# - マージの前に、テスト(型チェック・Lint・単体テスト・ビルド・E2E)が通ることを確かめる
+# - liqe は検索式の解釈が変わらないよう版を固定している。更新の PR では tests/unit/query.test.ts を必ず確認する
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 5
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+    labels:
+      - dependencies
+
+  # GitHub Actions を使い始めたら(TODO # 19)、ワークフローで使うアクションの更新も PR にする
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      timezone: Asia/Tokyo
+    cooldown:
+      default-days: 7
+    labels:
+      - dependencies

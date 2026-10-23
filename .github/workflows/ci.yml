@@ -1,0 +1,63 @@
+# PR のときだけ、型チェック・Lint・単体テスト・ビルド・E2E を実行する(TODO # 19)
+# PR を作ったとき・PR に追加で push したとき・PR を開き直したときに動く(main への直接の push では動かない)
+#
+# - テストには架空データだけを使う(実物のエクスポートはリポジトリに無い)
+# - 秘密情報(secrets)は使わない
+# - E2E は本番と同じ静的書き出しを、vercel.json のヘッダ(CSP を含む)で配信して試す
+# - アクションの版は Dependabot が更新する(.github/dependabot.yml)
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+  check:
+    name: typecheck / lint / unit / build / e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npm run test:e2e
+
+      - name: Upload E2E traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7

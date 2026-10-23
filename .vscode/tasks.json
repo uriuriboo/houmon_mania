@@ -1,0 +1,92 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev: 開発サーバー (http://localhost:3000)",
+      "type": "npm",
+      "script": "dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "reveal": "always" }
+    },
+    {
+      "label": "build: 静的書き出し(out/)+ CSP 埋め込み",
+      "type": "npm",
+      "script": "build",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "preview: out/ を本番と同じヘッダで配信 (http://localhost:4173)",
+      "type": "npm",
+      "script": "preview",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "reveal": "always" }
+    },
+    {
+      "label": "test: 単体テスト",
+      "type": "npm",
+      "script": "test",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "test:watch: 単体テスト(監視)",
+      "type": "npm",
+      "script": "test:watch",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "test:e2e: E2E(先に build)",
+      "type": "npm",
+      "script": "test:e2e",
+      "problemMatcher": []
+    },
+    {
+      "label": "lint",
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "typecheck",
+      "type": "npm",
+      "script": "typecheck",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "fixture: 架空データの疑似エクスポート(ZIP, 5000件)",
+      "type": "npm",
+      "script": "fixture",
+      "args": ["--", "--count", "5000"],
+      "problemMatcher": []
+    },
+    {
+      "label": "fixture: 架空データ(展開済みフォルダ, 5000件)",
+      "type": "npm",
+      "script": "fixture",
+      "args": ["--", "--count", "5000", "--folder"],
+      "problemMatcher": []
+    },
+    {
+      "label": "check: typecheck + lint + test",
+      "dependsOrder": "sequence",
+      "dependsOn": ["typecheck", "lint", "test: 単体テスト"],
+      "problemMatcher": []
+    },
+    {
+      "label": "setup: 依存のインストール(npm ci)",
+      "type": "shell",
+      "command": "npm ci",
+      "problemMatcher": []
+    },
+    {
+      "label": "setup: E2E 用ブラウザのインストール",
+      "type": "shell",
+      "command": "npx playwright install chromium",
+      "problemMatcher": []
+    }
+  ]
+}

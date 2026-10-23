@@ -1,6 +1,7 @@
 # 実物の Foursquare エクスポート(個人の位置履歴)は絶対にコミットしない
 *.zip
 local-data/
+data-export-*/
 
 # 依存・ビルド成果物
 node_modules/
@@ -8,6 +9,7 @@ node_modules/
 out/
 .netlify/
 *.tsbuildinfo
+next-env.d.ts
 coverage/
 playwright-report/
 test-results/
@@ -19,5 +21,9 @@ test-results/
 # OS・エディタ
 .DS_Store
 Thumbs.db
-.vscode/
+.vscode/*
+!.vscode/tasks.json
 .idea/
+
+# ルート直下の実データ置き場(src/app/data/ などのソースは対象外にするため先頭に / を付ける)
+/data*
