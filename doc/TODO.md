@@ -28,11 +28,11 @@
 |---|---|---|---|
 | 10 | **Google Search Console** の登録(所有権の確認は meta タグか DNS。スクリプトなし) | ドメイン | あなた→私 |
 | 11 | **Bing Webmaster Tools** の登録(Search Console から取り込める。スクリプトなし) | 10 | あなた |
-| 12 | **sitemap.xml**(トップ・このアプリについて・プライバシーポリシーの 3 ページだけ。`app/sitemap.ts` で静的に出力) | ドメイン | 私 |
-| 13 | **robots.txt** に `Sitemap:` の行を足す(除外の設定は済み) | 12 | 私 |
+| 12 | **sitemap.xml**(トップ・このアプリについて・プライバシーポリシーの 3 ページだけ。`app/sitemap.ts` で静的に出力) | ドメイン | **済(2026-10-23)**。仮に `visit-mania.vercel.app` で出力。独自ドメインにするときは `constants.ts` の `SITE_URL` を書き換える |
+| 13 | **robots.txt** に `Sitemap:` の行を足す(除外の設定は済み) | 12 | **済(2026-10-23)**。`public/robots.txt` を `app/robots.ts` に置き換えた(URL を `SITE_URL` と共通にするため) |
 | 14 | **description**: 「このアプリについて」「プライバシーポリシー」にページごとの説明を足す(全体の説明は設定済み)。**済(2026-10-22)** | — | 済 |
 | 15 | **OGP 画像**(1200×630 の静的な画像。`metadataBase` と `openGraph`・`twitter` の設定) | ドメイン | 私 |
-| 16 | **Vercel Web Analytics**(Cookie なし。3 ページだけに入れる。`@vercel/analytics`) | Vercel へのデプロイ | **済(2026-10-23。コード側)**。Vercel 側の有効化(Analytics タブ → Enable)はあなた |
+| 16 | **Vercel Web Analytics**(Cookie なし。3 ページだけに入れる。`@vercel/analytics`) | Vercel へのデプロイ | **済(2026-10-23。本番で計測を確認)** |
 | 17 | 「解析ツール・Cookie は使いません」の記載を実態に合わせる(プライバシーポリシー・トップ・このアプリについて・README・設計書 P-7/N-11・メンテナンス項目) | 16 と同時 | **済(2026-10-23)** |
 
 ### 条件つき
