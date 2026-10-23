@@ -6,6 +6,15 @@
 export const APP_NAME = 'Visit_Mania';
 export const APP_NAME_JA = '足あと検索';
 
+/**
+ * 公開 URL(オリジン)。sitemap.xml と robots.txt に使う。独自ドメインにするときは、ここだけ書き換える(17章 D-8)。
+ * 公開後にドメインを変えると、利用者の保存データは引き継げない。
+ */
+export const SITE_URL = 'https://visit-mania.vercel.app';
+
+/** 検索エンジンに載せるページ(位置履歴を扱わないもの)。検索・取り込み・データ管理は載せない */
+export const PUBLIC_PATHS = ['/', '/about', '/privacy'] as const;
+
 /** IndexedDB のデータベース名。オリジンごと・ブラウザごとに別 */
 export const DB_NAME = 'ashiato';
 
