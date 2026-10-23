@@ -1,5 +1,5 @@
 {
-  "name": "ashiato",
+  "name": "visit_mania",
   "version": "0.1.0",
   "private": true,
   "description": "Swarm のチェックイン履歴を、公式エクスポートからブラウザの中だけで検索する Web アプリ(非公式)",

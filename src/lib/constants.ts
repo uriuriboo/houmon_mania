@@ -3,7 +3,7 @@
  */
 
 /** 仮称(17章 D-8)。商標規定により Foursquare / Swarm / 4SQ / Check-in を含めない */
-export const APP_NAME = 'Ashiato';
+export const APP_NAME = 'visit_mania';
 export const APP_NAME_JA = '足あと検索';
 
 /** IndexedDB のデータベース名。オリジンごと・ブラウザごとに別 */

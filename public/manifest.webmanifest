@@ -1,6 +1,6 @@
 {
-  "name": "Ashiato(足あと検索)",
-  "short_name": "Ashiato",
+  "name": "visit_mania(足あと検索)",
+  "short_name": "visit_mania",
   "description": "Swarm のチェックイン履歴を、ブラウザの中だけで検索する非公式ツール",
   "lang": "ja",
   "start_url": "/search",
