@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Check, ShieldCheck, X } from 'lucide-react';
 import { PageContainer } from '@/components/ui/misc';
+import { GoogleAnalytics } from '@/components/google-analytics';
 import { WebAnalytics } from '@/components/web-analytics';
 import { HomeActions } from '@/features/app/HomeActions';
 import { IosNotice } from '@/features/app/IosNotice';
@@ -8,6 +9,7 @@ import { IosNotice } from '@/features/app/IosNotice';
 export default function HomePage() {
   return (
     <PageContainer className="space-y-10">
+      <GoogleAnalytics />
       <WebAnalytics />
       <section className="space-y-6 pt-4">
         <h1 className="text-3xl leading-tight font-bold tracking-tight sm:text-4xl">
@@ -70,7 +72,7 @@ export default function HomePage() {
         </h2>
         <ul className="list-disc space-y-1 pl-6 text-sm leading-relaxed">
           <li>読み込んだデータはこのブラウザの中だけに保存します。サーバーには送りません。</li>
-          <li>ログインは不要です。広告と Cookie は使いません。このページと、説明のページ 2 つだけ、訪問者数を数えます(個人は特定せず、検索・取り込み・データ管理では何も数えません)。</li>
+          <li>ログインは不要です。広告は使いません。このページと、説明のページ 2 つだけ、アクセス解析(Vercel Web Analytics と Google アナリティクス)で訪問者数を数えます。Cookie は保存しない設定で、検索・取り込み・データ管理のページでは何も数えず、何も送りません。</li>
           <li>同じブラウザを使う人はデータを見られます。共有のパソコンでは使わないでください。</li>
         </ul>
         <p className="mt-3 text-sm">

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageContainer, PageTitle } from '@/components/ui/misc';
+import { GoogleAnalytics } from '@/components/google-analytics';
 import { WebAnalytics } from '@/components/web-analytics';
 import { FSQ_PRIVACY_SETTINGS_URL } from '@/features/import/ImportGuide';
 import { SearchHelpContent } from '@/features/search/SearchHelp';
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <PageContainer>
+      <GoogleAnalytics />
       <WebAnalytics />
       <PageTitle>このアプリについて</PageTitle>
       <div className="prose-ja">
@@ -44,7 +46,7 @@ export default function AboutPage() {
           <li>友人の一覧・他の人のコメント・支払いや端末の情報など、ご本人のチェックイン以外のデータは読み込みません。</li>
           <li>Foursquare・Swarm のロゴやブランドの色は使っていません。アプリ名にも Foursquare・Swarm の名前を含めていません。</li>
           <li>
-            広告と Cookie は使っていません。トップ・このアプリについて・プライバシーポリシーの 3 ページだけ、訪問者数を数えています(個人は特定しません)。検索・取り込み・データ管理のページでは、何も数えず、何も送りません。
+            広告は使っていません。トップ・このアプリについて・プライバシーポリシーの 3 ページだけ、アクセス解析(Vercel Web Analytics と Google アナリティクス)で訪問者数を数えています。Cookie は保存しない設定で、個人は特定しません。検索・取り込み・データ管理のページでは、何も数えず、何も送りません。
           </li>
         </ul>
 

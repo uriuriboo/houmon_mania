@@ -3,21 +3,27 @@ import { expect, type Page } from '@playwright/test';
 // 1x1 の透明な PNG
 const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
 
-export type Watch = { cspViolations: string[]; consoleErrors: string[]; externalRequests: string[] };
+export type Watch = { cspViolations: string[]; consoleErrors: string[]; externalRequests: string[]; googleRequests: string[] };
 
 /**
  * テストの共通準備。
  * - 写真の画像 CDN へのリクエストはローカルで応答する(外部に接続しない)
  * - CSP の違反と、コンソールのエラーを記録する
  * - 自サイトと画像 CDN 以外へのリクエストを記録する(あってはならない)
+ * - Google アナリティクスへのリクエストは、別に記録する(位置履歴を扱わない 3 ページだけにある。analytics.spec.ts で確かめる)。スクリプトは空のものを返し、外部に接続しない
  */
 export const watchPage = async (page: Page): Promise<Watch> => {
-  const w: Watch = { consoleErrors: [], cspViolations: [], externalRequests: [] };
+  const w: Watch = { consoleErrors: [], cspViolations: [], externalRequests: [], googleRequests: [] };
   await page.route(/^https:\/\/[a-z0-9-]+\.4sqi\.net\//u, (route) => route.fulfill({ body: PIXEL, contentType: 'image/png', status: 200 }));
   // Vercel Web Analytics のスクリプト(本番では Vercel が /_vercel/insights/ で配信する)。ローカルの配信には無いため、空のものを返す
   await page.route('**/_vercel/insights/**', (route) => route.fulfill({ body: '', contentType: 'text/javascript', status: 200 }));
+  await page.route(/^https:\/\/www\.googletagmanager\.com\//u, (route) => route.fulfill({ body: '', contentType: 'text/javascript', status: 200 }));
   page.on('request', (req) => {
     const u = new URL(req.url());
+    if (/(^|\.)(googletagmanager\.com|google-analytics\.com|analytics\.google\.com)$/u.test(u.hostname)) {
+      w.googleRequests.push(req.url());
+      return;
+    }
     if (u.hostname !== 'localhost' && !u.hostname.endsWith('.4sqi.net') && u.protocol !== 'data:' && u.protocol !== 'blob:') w.externalRequests.push(req.url());
   });
   page.on('console', (msg) => {

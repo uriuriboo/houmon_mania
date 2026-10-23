@@ -44,6 +44,47 @@ test.describe('アクセス解析(Vercel Web Analytics)', () => {
     });
   }
 
+  // Google アナリティクス 4(TODO # 18)。Vercel Web Analytics と同じく、位置履歴を扱わない 3 ページだけ。
+  // Google のスクリプトはこのサイトと同じオリジンで動くため、検索・取り込み・データ管理の HTML には、読み込みも CSP の許可もない。
+  const cspOf = (page: Page) => page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content');
+
+  for (const path of ['/', '/about', '/privacy']) {
+    test(`GA4: ${path} では、Google のスクリプトを読み込み、CSP がそれを許す`, async ({ page }) => {
+      const w = await watchPage(page);
+      await page.goto(path);
+      await expect.poll(() => w.googleRequests.some((u) => u.startsWith('https://www.googletagmanager.com/gtag/js?id=G-'))).toBe(true);
+      expect(await cspOf(page)).toContain('https://www.googletagmanager.com');
+      // Cookie は保存しない設定
+      expect(await page.context().cookies()).toEqual([]);
+      expectClean(w);
+    });
+  }
+
+  for (const path of ['/search', '/import', '/data']) {
+    test(`GA4: ${path} では、Google への接続も CSP の許可もない`, async ({ page }) => {
+      const w = await watchPage(page);
+      await page.goto(path);
+      await page.waitForLoadState('networkidle');
+      expect(w.googleRequests).toEqual([]);
+      const csp = await cspOf(page);
+      expect(csp).not.toMatch(/google|googletagmanager/u);
+      expectClean(w);
+    });
+  }
+
+  test('GA4: トップから検索ページへ画面内で移動すると、ページを読み直し、Google への許可が外れる', async ({ page }) => {
+    const w = await watchPage(page);
+    await page.goto('/');
+    await expect.poll(() => w.googleRequests.length).toBeGreaterThan(0);
+    expect(await cspOf(page)).toContain('googletagmanager');
+    await page.locator('a[href="/search"]:visible').first().click();
+    await expect(page).toHaveURL(/\/search/u);
+    // 読み直されて、検索ページの HTML の CSP になる(Google の許可は無く、Google のスクリプトも外れている)
+    await expect.poll(async () => (await cspOf(page)) ?? '').not.toContain('googletagmanager');
+    expect(await page.evaluate(() => Boolean((window as unknown as { __gaLoaded?: boolean }).__gaLoaded))).toBe(false);
+    expectClean(w);
+  });
+
   test('トップから検索ページへ画面内で移動しても、検索ページの表示は送らない', async ({ page }) => {
     await watchPage(page);
     await watchInsights(page);
@@ -52,6 +93,7 @@ test.describe('アクセス解析(Vercel Web Analytics)', () => {
     await page.locator('a[href="/search"]:visible').first().click();
     await expect(page).toHaveURL(/\/search/u);
     await page.waitForLoadState('networkidle');
-    expect(await pageviews(page)).toEqual(['/']);
+    // GA4 の境界(ga-boundary.tsx)でページが読み直されるため、記録は空になる。いずれにせよ、検索ページの表示は含まれない
+    expect(await pageviews(page)).not.toContain('/search');
   });
 });

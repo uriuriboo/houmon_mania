@@ -15,6 +15,9 @@ export const SITE_URL = 'https://visit-mania.vercel.app';
 /** 検索エンジンに載せるページ(位置履歴を扱わないもの)。検索・取り込み・データ管理は載せない */
 export const PUBLIC_PATHS = ['/', '/about', '/privacy'] as const;
 
+/** Google アナリティクス 4 の測定 ID(公開されてよい値)。PUBLIC_PATHS の 3 ページだけで使う(TODO # 18) */
+export const GA_MEASUREMENT_ID = 'G-PCEDMF6SC8';
+
 /** IndexedDB のデータベース名。オリジンごと・ブラウザごとに別 */
 export const DB_NAME = 'ashiato';
 
