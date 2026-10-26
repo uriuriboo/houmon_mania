@@ -23,7 +23,7 @@ const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><style>
   .sub { font-size: 32px; color: #d6d3d1; margin-top: 24px; }
   .note { position: absolute; left: 96px; bottom: 44px; font-size: 24px; color: #a8a29e; }
 </style><body><div class="bar"></div>
-  <div class="head">${LOGO}<div><h1>Visit_Mania</h1><div class="ja">足あと検索</div></div></div>
+  <div class="head">${LOGO}<div><h1>Houmon_Mania</h1><div class="ja">足あと検索</div></div></div>
   <div class="lead">Swarm のチェックイン履歴を、<br>店名やコメントで検索</div>
   <div class="sub">データはあなたのブラウザの中だけに保存します</div>
   <div class="note">非公式ツール ・ ログイン不要</div>
