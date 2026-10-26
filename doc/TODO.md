@@ -16,7 +16,7 @@
 | 8 | アプリ名・ドメインを決める(D-8)。**公開後に変えると利用者の保存データが引き継げない**。sitemap・OGP・Search Console もドメインが前提 | あなた | 未 |
 | 9 | エクスポートの申し込み手順の文言を、実際の画面と照らす([ImportGuide.tsx](../src/features/import/ImportGuide.tsx)) | あなた→私 | 済(2026-10-23。取り込みページの文言を確認) |
 | 30 | **名前を houmon_mania に変更(2026-10-26 決定。表示名は `Houmon_Mania`、リポジトリ・package 名は `houmon_mania`、URL は `houmon-mania.vercel.app`)**。コードと文書の改名は**済(私)**。あなたの作業: ① GitHub のリポジトリ名を `houmon_mania` に変更(旧 URL は GitHub が転送する)→ 済んだら私が `git remote` を直す ② Vercel のプロジェクト名を `houmon-mania` に変更し、Settings → Domains で `houmon-mania.vercel.app` が使えることを確かめる(プロジェクト名を変えても、既存の URL が自動では変わらない場合がある) | あなた→私 | 未 |
-| 31 | 30 で URL が変わるため、**Search Console を新しい URL(`https://houmon-mania.vercel.app/`)で登録し直す**(確認用のファイルかタグは新しいものが出る。私が `public/` などに追加する)→ サイトマップ送信 → Bing は取り込み直す。GA4 のデータストリームの URL も直す(GA4 を入れた後)。旧 URL の `google5cd5117f8a603ad4.html` は不要になれば削除 | あなた→私 | 未 |
+| 31 | 30 で URL が変わるため、**Search Console を新しい URL(`https://houmon-mania.vercel.app/`)で登録し直す****所有権の確認は済(2026-10-26。前回と同じ `public/google5cd5117f8a603ad4.html` で自動確認。確認状態を保つため、このファイルは削除しない)**。サイトマップ送信(3 ページを検出)、旧プロパティ(`visit-mania.vercel.app`)の削除、GA4 のデータストリームの URL の修正も済(2026-10-26)。**残り: Bing の取り込み(# 11)** | あなた | ほぼ済 |
 | 32 | **Cloudflare**: 独自ドメインの取得と DNS の設定(**ホスティングは Vercel のまま**。Cloudflare Registrar で取得し、DNS を Vercel に向ける)。取得したら `constants.ts` の `SITE_URL` を書き換え、31 をやり直す。**公開後にドメインを変えると、利用者の保存データは引き継げない**(# 8 と一緒に決める) | あなた→私 | 未 |
 
 ## 2. SEO・共有・解析
@@ -29,7 +29,7 @@
 
 | # | やること | 前提 | 担当 |
 |---|---|---|---|
-| 10 | **Google Search Console** の登録(所有権の確認は meta タグか DNS。スクリプトなし) | ドメイン | **済(2026-10-23。URL プレフィックス `https://houmon-mania.vercel.app/`。確認用 HTML ファイルを `public/` に置いた)**。独自ドメインにしたら、登録し直し |
+| 10 | **Google Search Console** の登録(所有権の確認は meta タグか DNS。スクリプトなし) | ドメイン | **済(2026-10-23。URL プレフィックス `https://houmon-mania.vercel.app/`。確認用 HTML ファイルを `public/` に置いた。2026-10-26 に新 URL で登録し直した、# 31)**。独自ドメインにしたら、また登録し直し |
 | 11 | **Bing Webmaster Tools** の登録(Search Console から取り込める。スクリプトなし) | 10 | あなた |
 | 12 | **sitemap.xml**(トップ・このアプリについて・プライバシーポリシーの 3 ページだけ。`app/sitemap.ts` で静的に出力) | ドメイン | **済(2026-10-23)**。仮に `houmon-mania.vercel.app` で出力。独自ドメインにするときは `constants.ts` の `SITE_URL` を書き換える |
 | 13 | **robots.txt** に `Sitemap:` の行を足す(除外の設定は済み) | 12 | **済(2026-10-23)**。`public/robots.txt` を `app/robots.ts` に置き換えた(URL を `SITE_URL` と共通にするため) |
