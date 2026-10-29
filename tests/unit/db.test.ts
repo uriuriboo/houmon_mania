@@ -1,5 +1,8 @@
 import 'fake-indexeddb/auto';
+import { openDB } from 'idb';
 import { afterEach, describe, expect, it } from 'vitest';
+import { DB_NAME } from '@/lib/constants';
+import { toLocalParts } from '@/lib/datetime';
 import { writeImportPlan } from '@/lib/db/importWriter';
 import { readMeta } from '@/lib/db/meta';
 import { rebuildDerivedValues } from '@/lib/db/migrations';
@@ -8,7 +11,9 @@ import { getCheckinViews, loadExistingState, loadSearchEntries } from '@/lib/db/
 import { DB_VERSION, META_KEYS, type AppDB } from '@/lib/db/schema';
 import { analyzeExport, type ExportSource } from '@/lib/import/analyze';
 import { ImportError } from '@/lib/import/errors';
+import type { CheckinView } from '@/lib/model';
 import { SearchEngine } from '@/lib/search/engine';
+import { EMPTY_FILTERS, type SearchFilters } from '@/lib/search/filters';
 import { parseSearchQuery } from '@/lib/query/parse';
 import { generateFakeExport } from '../../scripts/lib/fake-export.mjs';
 
@@ -62,6 +67,42 @@ describe('保存形式', () => {
     expect(n).toBe(30);
     const after = await db.getAll('search_index');
     expect(after).toEqual(before);
+  });
+
+  it('版 1 のデータを開くと、詳細条件用の値を作り直す', async () => {
+    const { files } = generateFakeExport({ count: 40, photoRatio: 0.5, seed: 20 });
+    db = await openAppDb();
+    await importFiles(db, files);
+    const expected = await db.getAll('search_index');
+    const checkins = await db.getAll('checkins');
+    const photos = await db.getAll('photos');
+    expect(expected.some((r) => r.has_photo) && expected.some((r) => !r.has_photo)).toBe(true);
+    db.close();
+    db = null;
+    await deleteAppDb();
+
+    // 版 1 の形で保存する(search_index に詳細条件用の値が無い)
+    const old = await openDB(DB_NAME, 1, {
+      upgrade(d) {
+        d.createObjectStore('checkins', { keyPath: 'id' }).createIndex('created_at', 'created_at');
+        d.createObjectStore('search_index', { keyPath: 'id' });
+        d.createObjectStore('photos', { keyPath: 'photo_id' }).createIndex('checkin_id', 'checkin_id');
+        d.createObjectStore('meta');
+      },
+    });
+    const tx = old.transaction(['checkins', 'search_index', 'photos', 'meta'], 'readwrite');
+    for (const c of checkins) await tx.objectStore('checkins').put(c);
+    for (const p of photos) await tx.objectStore('photos').put(p);
+    for (const r of expected) {
+      await tx.objectStore('search_index').put({ content_hash: r.content_hash, created_at: r.created_at, id: r.id, search_text: r.search_text });
+    }
+    await tx.objectStore('meta').put(1, META_KEYS.schemaVersion);
+    await tx.done;
+    old.close();
+
+    db = await openAppDb();
+    expect(await db.getAll('search_index')).toEqual(expected);
+    expect((await readMeta(db)).schemaVersion).toBe(2);
   });
 });
 
@@ -158,26 +199,91 @@ describe('検索', () => {
     const engine = new SearchEngine(await loadSearchEntries(db));
     expect(engine.count).toBe(500);
 
-    const all = engine.search(null, 1, 50);
+    const all = engine.search(null, EMPTY_FILTERS, 1, 50);
     expect(all).toMatchObject({ page: 1, total: 500 });
     const views = await getCheckinViews(db, all.ids);
     expect(views).toHaveLength(50);
     for (let i = 1; i < views.length; i++) expect(views[i - 1]!.created_at).toBeGreaterThanOrEqual(views[i]!.created_at);
     expect(views[0]).not.toHaveProperty('raw');
 
-    const r = engine.search(parseSearchQuery('架空ラーメン 渋谷').ast, 1, 20);
+    const r = engine.search(parseSearchQuery('架空ラーメン 渋谷').ast, EMPTY_FILTERS, 1, 20);
     const hits = await getCheckinViews(db, r.ids);
     expect(r.total).toBeGreaterThan(0);
     expect(hits.every((h) => h.venue_canonical_name === '架空ラーメン 渋谷店')).toBe(true);
 
     // 英字表記でも見つかる。全角でも見つかる
-    expect(engine.search(parseSearchQuery('ｋａｋｕｕ ramen shibuya').ast, 1, 20).total).toBe(r.total);
+    expect(engine.search(parseSearchQuery('ｋａｋｕｕ ramen shibuya').ast, EMPTY_FILTERS, 1, 20).total).toBe(r.total);
 
     // 範囲外のページは最終ページに補正する
-    const last = engine.search(null, 999, 50);
+    const last = engine.search(null, EMPTY_FILTERS, 999, 50);
     expect(last).toMatchObject({ page: 10 });
     expect(last.ids).toHaveLength(50);
-    expect(engine.search(parseSearchQuery('存在しない語').ast, 3, 50)).toEqual({ ids: [], page: 1, total: 0 });
+    expect(engine.search(parseSearchQuery('存在しない語').ast, EMPTY_FILTERS, 3, 50)).toEqual({ ids: [], page: 1, total: 0 });
+  });
+
+  it('詳細条件で絞り込む(現地時刻で判定し、検索式と AND で組み合わせる)', async () => {
+    db = await openAppDb();
+    const { files } = generateFakeExport({ count: 800, photoRatio: 0.3, seed: 19 });
+    await importFiles(db, files);
+    const engine = new SearchEngine(await loadSearchEntries(db));
+    const all = await getCheckinViews(db, engine.search(null, EMPTY_FILTERS, 1, 100_000).ids);
+    const f = (over: Partial<SearchFilters>): SearchFilters => ({ ...EMPTY_FILTERS, ...over });
+    const run = async (filters: SearchFilters, q = '') => getCheckinViews(db!, engine.search(parseSearchQuery(q).ast, filters, 1, 100_000).ids);
+    const expectSame = (got: CheckinView[], want: CheckinView[]) => {
+      expect(want.length).toBeGreaterThan(0);
+      expect(got.map((c) => c.id)).toEqual(want.map((c) => c.id));
+    };
+    const local = (c: CheckinView) => toLocalParts(c.created_at, c.tz_offset);
+    const ymd = (c: CheckinView) => {
+      const p = local(c);
+      return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
+    };
+
+    expectSame(await run(f({ from: '2024-01-01', to: '2024-12-31' })), all.filter((c) => ymd(c) >= '2024-01-01' && ymd(c) <= '2024-12-31'));
+    expectSame(await run(f({ from: '2025-06-01' })), all.filter((c) => ymd(c) >= '2025-06-01'));
+    expectSame(await run(f({ weekdays: [0, 6] })), all.filter((c) => [0, 6].includes(local(c).weekday)));
+    expectSame(await run(f({ hourFrom: 18, hourTo: 20 })), all.filter((c) => local(c).hour >= 18 && local(c).hour <= 20));
+    // 日をまたぐ時間帯
+    expectSame(await run(f({ hourFrom: 22, hourTo: 2 })), all.filter((c) => local(c).hour >= 22 || local(c).hour <= 2));
+    expectSame(await run(f({ photo: 'with' })), all.filter((c) => c.photo_count > 0));
+    expectSame(await run(f({ photo: 'without' })), all.filter((c) => c.photo_count === 0));
+    expectSame(await run(f({ shout: 'with' })), all.filter((c) => c.shout !== null));
+    expectSame(await run(f({ event: 'with' })), all.filter((c) => c.event_name !== null));
+    expectSame(await run(f({ visibility: 'private' })), all.filter((c) => c.visibility === 'private'));
+    expectSame(await run(f({ visibility: 'none' })), all.filter((c) => c.visibility === null));
+    // 検索式との組み合わせ
+    expectSame(
+      await run(f({ photo: 'with', weekdays: [1, 2, 3, 4, 5] }), '架空ラーメン'),
+      all.filter((c) => c.photo_count > 0 && local(c).weekday >= 1 && local(c).weekday <= 5 && c.venue_canonical_name?.startsWith('架空ラーメン')),
+    );
+    // 架空データの店 ID はチェックインごとに違うので、訪問回数はすべて 1
+    expect((await run(f({ visitsMin: 2 }))).length).toBe(0);
+    expect((await run(f({ visitsMax: 1 }))).length).toBe(all.length);
+  });
+
+  it('同じ店への訪問回数で絞り込む', () => {
+    const DAY = 86_400_000;
+    const base = Date.UTC(2025, 0, 6); // 月曜
+    const venues = ['a', 'a', 'a', 'b', 'b', 'c', null];
+    const entries = {
+      attrs: venues.map((venue_id, i) => ({
+        created_at: base - i * DAY,
+        has_event: false,
+        has_photo: false,
+        has_shout: false,
+        tz_offset: 540,
+        venue_id,
+        visibility: null,
+      })),
+      ids: venues.map((_, i) => `id${i}`),
+      texts: venues.map(() => ''),
+    };
+    const engine = new SearchEngine(entries);
+    const ids = (over: Partial<SearchFilters>) => engine.search(null, { ...EMPTY_FILTERS, ...over }, 1, 100).ids;
+    expect(ids({ visitsMin: 2 })).toEqual(['id0', 'id1', 'id2', 'id3', 'id4']);
+    expect(ids({ visitsMin: 3 })).toEqual(['id0', 'id1', 'id2']);
+    expect(ids({ visitsMax: 1 })).toEqual(['id5']);
+    expect(ids({ visitsMin: 2, visitsMax: 2 })).toEqual(['id3', 'id4']);
   });
 
   it('写真の情報を含めて返す', async () => {

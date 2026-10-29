@@ -59,6 +59,15 @@ export type SearchIndexRecord = {
   search_text: string;
   /** raw と写真の情報の集合から計算したハッシュ(9.2.4) */
   content_hash: string;
+  // ── 詳細条件(絞り込み)に使う値(保存形式の版 2 から) ──
+  /** 現地時刻との差(分)。無ければ null */
+  tz_offset: number | null;
+  venue_id: string | null;
+  visibility: string | null;
+  has_photo: boolean;
+  /** コメント(shout)がある */
+  has_shout: boolean;
+  has_event: boolean;
 };
 
 /** photos ストア(写真の情報) */

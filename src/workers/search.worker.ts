@@ -7,6 +7,7 @@ import { getCheckinViews, loadSearchEntries } from '@/lib/db/queries';
 import type { AppDB } from '@/lib/db/schema';
 import { InvalidAstError, validateAst } from '@/lib/query/match';
 import { SearchEngine } from '@/lib/search/engine';
+import { sanitizeFilters } from '@/lib/search/filters';
 import type { SearchErrorCode, SearchRequest, SearchResponse, WorkerScope } from '@/lib/workers/protocol';
 
 const scope = self as unknown as WorkerScope<SearchRequest, SearchResponse>;
@@ -69,7 +70,7 @@ const handle = async (msg: SearchRequest): Promise<void> => {
         const ast = msg.ast === null ? null : validateAst(msg.ast);
         const size = Number.isInteger(msg.size) && msg.size > 0 && msg.size <= 100 ? msg.size : 50;
         const page = Number.isInteger(msg.page) && msg.page > 0 ? msg.page : 1;
-        const r = engine.search(ast, page, size);
+        const r = engine.search(ast, sanitizeFilters(msg.filters), page, size);
         const items = await getCheckinViews(db, r.ids);
         post({ items, ms: Math.round(performance.now() - t0), page: r.page, reqId: msg.reqId, total: r.total, type: 'results' });
         return;

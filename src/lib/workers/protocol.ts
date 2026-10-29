@@ -29,7 +29,7 @@ export type ImportResponse =
 // ───────────────────────── 検索ワーカー ─────────────────────────
 export type SearchRequest =
   | { type: 'prepare'; reqId: number }
-  | { type: 'search'; reqId: number; ast: unknown; page: number; size: number }
+  | { type: 'search'; reqId: number; ast: unknown; filters: unknown; page: number; size: number }
   | { type: 'detail'; reqId: number; id: string }
   | { type: 'dispose'; reqId: number };
 

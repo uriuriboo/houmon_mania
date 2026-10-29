@@ -264,8 +264,14 @@ export const deriveRecords = (
   const searchIndex: SearchIndexRecord = {
     content_hash: buildContentHash(raw, photos),
     created_at: createdAt,
+    has_event: raw.event !== undefined,
+    has_photo: photos.length > 0,
+    has_shout: checkin.shout !== null && checkin.shout.trim() !== '',
     id: raw.id,
     search_text: buildSearchText(raw),
+    tz_offset: checkin.tz_offset,
+    venue_id: checkin.venue_id,
+    visibility: checkin.visibility,
   };
   return { checkin, searchIndex };
 };

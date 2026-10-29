@@ -25,6 +25,12 @@
       "presentation": { "panel": "dedicated", "reveal": "always" }
     },
     {
+      "label": "serve: build してから本番と同じヘッダで配信 (http://localhost:4173)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["build: 静的書き出し(out/)+ CSP 埋め込み", "preview: out/ を本番と同じヘッダで配信 (http://localhost:4173)"],
+      "problemMatcher": []
+    },
+    {
       "label": "test: 単体テスト",
       "type": "npm",
       "script": "test",

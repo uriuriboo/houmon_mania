@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildSearchHash, parseSearchHash } from '@/lib/hashState';
+import { buildSearchHash, INITIAL_SEARCH_STATE, parseSearchHash } from '@/lib/hashState';
+import { describeFilters, EMPTY_FILTERS, hasFilters, sanitizeFilters } from '@/lib/search/filters';
 import { clampPage, pageRange, pageSlots, totalPages } from '@/lib/pagination';
 
 describe('ページネーション', () => {
@@ -30,15 +31,53 @@ describe('ページネーション', () => {
 describe('URL の # 以降の状態', () => {
   it('読み取りと組み立て', () => {
     const s = parseSearchHash('#q=%E4%B8%80%E8%98%AD&page=5&size=20&id=6a00000000000000000000a1');
-    expect(s).toEqual({ id: '6a00000000000000000000a1', page: 5, q: '一蘭', size: 20 });
+    expect(s).toEqual({ filters: EMPTY_FILTERS, id: '6a00000000000000000000a1', page: 5, q: '一蘭', size: 20 });
     expect(parseSearchHash(buildSearchHash(s))).toEqual(s);
-    expect(buildSearchHash({ id: null, page: 1, q: '', size: 50 })).toBe('');
+    expect(buildSearchHash(INITIAL_SEARCH_STATE)).toBe('');
   });
 
   it('不正な値は既定値にする', () => {
-    expect(parseSearchHash('#page=-1&size=7&id=<script>')).toEqual({ id: null, page: 1, q: '', size: 50 });
+    expect(parseSearchHash('#page=-1&size=7&id=<script>')).toEqual(INITIAL_SEARCH_STATE);
     expect(parseSearchHash('#page=abc')).toMatchObject({ page: 1 });
     expect(parseSearchHash('#page=99999999')).toMatchObject({ page: 1 });
-    expect(parseSearchHash('')).toEqual({ id: null, page: 1, q: '', size: 50 });
+    expect(parseSearchHash('')).toEqual(INITIAL_SEARCH_STATE);
+  });
+
+  it('詳細条件の読み取りと組み立て', () => {
+    const s = parseSearchHash('#q=a&from=2024-01-01&to=2024-12-31&wd=60&hf=22&ht=3&photo=1&shout=0&event=1&vis=closeFriends&vmin=3&vmax=10');
+    expect(s.filters).toEqual({
+      event: 'with',
+      from: '2024-01-01',
+      hourFrom: 22,
+      hourTo: 3,
+      photo: 'with',
+      shout: 'without',
+      to: '2024-12-31',
+      visibility: 'closeFriends',
+      visitsMax: 10,
+      visitsMin: 3,
+      weekdays: [0, 6],
+    });
+    expect(parseSearchHash(buildSearchHash(s))).toEqual(s);
+    expect(hasFilters(s.filters)).toBe(true);
+    expect(describeFilters(s.filters)).toEqual([
+      '2024/01/01〜2024/12/31',
+      '日・土曜',
+      '22時〜3時台',
+      '写真あり',
+      'コメントなし',
+      'イベントのみ',
+      '公開範囲: 親しい友達',
+      '同じ店に3〜10回',
+    ]);
+  });
+
+  it('詳細条件の不正な値は指定なしにする', () => {
+    const s = parseSearchHash('#from=2024-02-30&to=abc&wd=79x&hf=24&ht=-1&photo=yes&vis=everyone&vmin=0&vmax=1e3');
+    expect(s.filters).toEqual(EMPTY_FILTERS);
+    // 7曜日すべては指定なしと同じ
+    expect(parseSearchHash('#wd=0123456').filters.weekdays).toEqual([]);
+    expect(sanitizeFilters({ from: '0002-01-01', visitsMin: 2.5, weekdays: 'abc' })).toEqual(EMPTY_FILTERS);
+    expect(sanitizeFilters(null)).toEqual(EMPTY_FILTERS);
   });
 });

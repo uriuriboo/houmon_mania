@@ -10,12 +10,15 @@ import { Notice } from '@/components/ui/notice';
 import { useAppState } from '@/features/app/AppStateProvider';
 import { CheckinDetailSheet } from '@/features/checkin/CheckinDetail';
 import { PAGE_SIZES, STALE_DAYS } from '@/lib/constants';
+import { INITIAL_SEARCH_STATE } from '@/lib/hashState';
 import type { CheckinView } from '@/lib/model';
 import { pageRange } from '@/lib/pagination';
 import { parseSearchQuery, SearchQueryError, type ParsedSearchQuery } from '@/lib/query/parse';
+import { describeFilters, EMPTY_FILTERS, filtersKey, type SearchFilters } from '@/lib/search/filters';
 import type { SearchResults } from '@/lib/workers/protocol';
 import { navigateSearchHash, useSearchHash } from './hashStore';
 import { Pagination } from './Pagination';
+import { SearchFiltersPanel } from './SearchFilters';
 import { SearchHelpContent } from './SearchHelp';
 import { Timeline } from './Timeline';
 
@@ -59,14 +62,17 @@ export function SearchView() {
   }
 
   const q = hash?.q ?? null;
+  const filters = hash?.filters ?? EMPTY_FILTERS;
   const page = hash?.page ?? 1;
   const size = hash?.size ?? 50;
   const selectedId = hash?.id ?? null;
   const parsed = useMemo(() => (q === null ? null : safeParse(q)), [q]);
   const ready = searchStatus === 'ready' && searchClient !== null;
+  const fKey = filtersKey(filters);
+  const filterLabels = describeFilters(filters);
 
   // ── 検索 ──
-  const searchKey = parsed?.ok ? `${q}\u0000${page}\u0000${size}` : null;
+  const searchKey = parsed?.ok ? `${q}\u0000${fKey}\u0000${page}\u0000${size}` : null;
   const [result, setResult] = useState<{ key: string; data: SearchResults } | null>(null);
   const [searchFailed, setSearchFailed] = useState<string | null>(null);
 
@@ -74,7 +80,7 @@ export function SearchView() {
     if (!ready || !searchKey || !parsed?.ok || !hash) return;
     let cancelled = false;
     searchClient
-      .search(parsed.ast, page, size)
+      .search(parsed.ast, filters, page, size)
       .then((data) => {
         if (cancelled) return;
         setResult({ data, key: searchKey });
@@ -144,7 +150,7 @@ export function SearchView() {
       detailPushed = false;
       window.history.back();
     } else {
-      const s = { ...(hash ?? { page: 1, q: '', size: 50 }), id: null };
+      const s = { ...(hash ?? INITIAL_SEARCH_STATE), id: null };
       navigateSearchHash(s, 'replace');
     }
   }, [hash]);
@@ -153,7 +159,12 @@ export function SearchView() {
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (!hash) return;
-    navigateSearchHash({ id: null, page: 1, q: input.trim(), size: hash.size }, 'push');
+    navigateSearchHash({ ...hash, id: null, page: 1, q: input.trim() }, 'push');
+  };
+  // 詳細条件は変えるたびに検索し直す。日付や回数の入力中に履歴が増えないよう、置き換える
+  const changeFilters = (next: SearchFilters) => {
+    if (!hash) return;
+    navigateSearchHash({ ...hash, filters: next, id: null, page: 1 }, 'replace');
   };
   const goPage = (p: number) => {
     if (!hash) return;
@@ -224,6 +235,8 @@ export function SearchView() {
             </Button>
           </form>
 
+          <SearchFiltersPanel filters={filters} disabled={!hash} onChange={changeFilters} />
+
           {parsed?.ok === false && (
             <div id="q-error" role="alert" className="mt-2">
               <Notice tone="error">
@@ -260,6 +273,7 @@ export function SearchView() {
 
           <div ref={listTopRef} className="scroll-mt-20 pt-4">
             {parsed?.ok && parsed.ast && <p className="text-sm text-stone-600 dark:text-stone-400">解釈: {parsed.interpretation}</p>}
+            {filterLabels.length > 0 && <p className="text-sm text-stone-600 dark:text-stone-400">絞り込み: {filterLabels.join('、')}</p>}
 
             {(loading || !hash) && parsed?.ok !== false ? (
               <div className="mt-4">
@@ -293,10 +307,11 @@ export function SearchView() {
                   </label>
                 </div>
                 {current.total === 0 ? (
-                  <Notice tone="info" title={`「${q}」に一致するチェックインはありませんでした`}>
+                  <Notice tone="info" title={q ? `「${q}」に一致するチェックインはありませんでした` : '条件に一致するチェックインはありませんでした'}>
                     <ul className="list-disc space-y-1 pl-5">
-                      <li>検索の対象は、店名(英語表記・現地語)・コメント・場所名・イベント名です。住所・カテゴリでは検索できません。</li>
-                      <li>語を減らすか、OR でつないでみてください(例: ラーメン OR らーめん)。ひらがなとカタカナは区別します。</li>
+                      {q && <li>検索の対象は、店名(英語表記・現地語)・コメント・場所名・イベント名です。住所・カテゴリでは検索できません。</li>}
+                      {q && <li>語を減らすか、OR でつないでみてください(例: ラーメン OR らーめん)。ひらがなとカタカナは区別します。</li>}
+                      {filterLabels.length > 0 && <li>詳細条件を減らしてみてください(「条件をすべて解除」で外せます)。</li>}
                     </ul>
                   </Notice>
                 ) : (
