@@ -3,14 +3,19 @@
  * 値は検証し、不正な値は既定値にする。
  */
 import { DEFAULT_PAGE_SIZE, PAGE_SIZES, QUERY_LIMITS } from '@/lib/constants';
+import { EMPTY_FILTERS, filtersFromParams, filtersToParams, type SearchFilters } from '@/lib/search/filters';
 
 export type SearchHashState = {
   q: string;
+  /** 詳細条件(絞り込み) */
+  filters: SearchFilters;
   page: number;
   size: number;
   /** 詳細を開いているチェックインの ID */
   id: string | null;
 };
+
+export const INITIAL_SEARCH_STATE: SearchHashState = { filters: EMPTY_FILTERS, id: null, page: 1, q: '', size: DEFAULT_PAGE_SIZE };
 
 export const MAX_PAGE = 100_000;
 const HEX24 = /^[0-9a-f]{24}$/u;
@@ -25,12 +30,13 @@ export const parseSearchHash = (hash: string): SearchHashState => {
   const size = (PAGE_SIZES as readonly number[]).includes(sizeRaw) ? sizeRaw : DEFAULT_PAGE_SIZE;
   const idRaw = params.get('id');
   const id = idRaw !== null && HEX24.test(idRaw) ? idRaw : null;
-  return { id, page, q, size };
+  return { filters: filtersFromParams(params), id, page, q, size };
 };
 
 export const buildSearchHash = (state: SearchHashState): string => {
   const params = new URLSearchParams();
   if (state.q) params.set('q', state.q);
+  filtersToParams(state.filters, params);
   if (state.page > 1) params.set('page', String(state.page));
   if (state.size !== DEFAULT_PAGE_SIZE) params.set('size', String(state.size));
   if (state.id) params.set('id', state.id);

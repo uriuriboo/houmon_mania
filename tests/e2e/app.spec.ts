@@ -83,6 +83,32 @@ test.describe('取り込み → 検索 → 詳細 → 削除', () => {
     await page.goto('/search#page=999');
     await expect(page.getByText(/1,200件中 1,151–1,200件/u)).toBeVisible({ timeout: 15_000 });
 
+    // 詳細条件(絞り込み)。URL に残り、再読み込みでも再現する
+    await page.goto('/search');
+    await expect(page.getByText(/1,200件中 1–50件/u)).toBeVisible({ timeout: 15_000 });
+    await page.locator('summary', { hasText: '詳細条件' }).click();
+    await page.locator('#f-photo').selectOption('with');
+    await expect(page).toHaveURL(/photo=1/u);
+    await expect(page.getByText('絞り込み: 写真あり')).toBeVisible();
+    const photoTotal = Number((await page.getByText(/件中/u).textContent())!.replace(/[^\d].*$/u, '').replace(/,/gu, ''));
+    expect(photoTotal).toBeGreaterThan(0);
+    expect(photoTotal).toBeLessThan(1200);
+    await page.locator('label').filter({ has: page.getByRole('checkbox', { name: '土曜日' }) }).click();
+    await page.locator('label').filter({ has: page.getByRole('checkbox', { name: '日曜日' }) }).click();
+    await expect(page).toHaveURL(/wd=06/u);
+    await expect(page.getByText('絞り込み: 日・土曜、写真あり')).toBeVisible();
+    await page.reload();
+    await expect(page.getByText('絞り込み: 日・土曜、写真あり')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('#f-photo')).toHaveValue('with');
+    await expect(page.getByRole('checkbox', { name: '土曜日' })).toBeChecked();
+    // 該当なし
+    await page.locator('#f-from').fill('2030-01-01');
+    await expect(page.getByText('条件に一致するチェックインはありませんでした')).toBeVisible();
+    await page.getByRole('button', { name: '条件をすべて解除' }).click();
+    await expect(page.getByText(/1,200件中 1–50件/u)).toBeVisible();
+    await expect(page).not.toHaveURL(/photo=/u);
+    await expect(page.locator('#f-from')).toHaveValue('');
+
     // 検索式のエラー(D-4・D-5)
     await page.getByRole('searchbox', { name: '検索式' }).fill('A AND B OR C');
     await page.getByRole('searchbox', { name: '検索式' }).press('Enter');
@@ -124,6 +150,33 @@ test.describe('取り込み → 検索 → 詳細 → 削除', () => {
     await expect(page.getByText('保存済みのデータから変更はありません')).toBeVisible();
     await page.getByRole('button', { name: 'やめる' }).click();
     await expect(page.getByText(/中止しました/u)).toBeVisible();
+    expectClean(w);
+  });
+
+  test('取り込みの画面から、保存したデータを削除できる', async ({ page }) => {
+    const w = await watchPage(page);
+    await page.goto('/import');
+    // データが無いうちは削除のボタンを出さない
+    await expect(page.getByText('このブラウザにはまだデータがありません')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'このブラウザのデータを削除' })).toHaveCount(0);
+
+    await page.locator('input[type=file][accept*=".zip"]').setInputFiles(FIXTURE_ZIP);
+    await expect(page.getByText(/チェックイン 1,200 件/u)).toBeVisible({ timeout: 30_000 });
+    // 取り込みの途中は出さない
+    await expect(page.getByRole('button', { name: 'このブラウザのデータを削除' })).toHaveCount(0);
+    await page.getByRole('button', { name: '取り込む' }).click();
+    await expect(page.getByText('取り込みが完了しました')).toBeVisible({ timeout: 30_000 });
+
+    await expect(page.getByText(/このブラウザに 1,200 件のチェックインを保存しています/u)).toBeVisible();
+    await page.getByRole('button', { name: 'このブラウザのデータを削除' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: '削除する' }).click();
+    await expect(page.getByText('このブラウザのデータを削除しました')).toBeVisible({ timeout: 15_000 });
+    // 取り込み完了の表示と削除のボタンが消え、空の状態に戻る
+    await expect(page.getByText('取り込みが完了しました')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'このブラウザのデータを削除' })).toHaveCount(0);
+    await expect(page.getByText('このブラウザにはまだデータがありません')).toBeVisible();
+    await page.goto('/search');
+    await expect(page.getByText('このブラウザにはデータがありません')).toBeVisible();
     expectClean(w);
   });
 

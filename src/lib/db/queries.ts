@@ -3,14 +3,19 @@
  */
 import { comparePhotos } from '@/lib/export/records';
 import type { ExistingState } from '@/lib/import/diff';
-import { toCheckinView, type CheckinView } from '@/lib/model';
+import { toCheckinView, type CheckinView, type SearchIndexRecord } from '@/lib/model';
 import { readMeta } from './meta';
 import type { AppDB } from './schema';
+
+/** 詳細条件(絞り込み)に使う値 */
+export type FilterAttrs = Pick<SearchIndexRecord, 'created_at' | 'tz_offset' | 'venue_id' | 'visibility' | 'has_photo' | 'has_shout' | 'has_event'>;
 
 /** 検索用データ。日時の降順(同時刻は ID の降順)に並べたもの(5.6、9.3.4) */
 export type SearchEntries = {
   ids: string[];
   texts: string[];
+  /** ids と同じ順 */
+  attrs: FilterAttrs[];
 };
 
 export const compareEntryDesc = (a: { id: string; created_at: number }, b: { id: string; created_at: number }): number =>
@@ -20,7 +25,19 @@ export const compareEntryDesc = (a: { id: string; created_at: number }, b: { id:
 export const loadSearchEntries = async (db: AppDB): Promise<SearchEntries> => {
   const all = await db.getAll('search_index');
   all.sort(compareEntryDesc);
-  return { ids: all.map((r) => r.id), texts: all.map((r) => r.search_text) };
+  return {
+    attrs: all.map((r) => ({
+      created_at: r.created_at,
+      has_event: r.has_event,
+      has_photo: r.has_photo,
+      has_shout: r.has_shout,
+      tz_offset: r.tz_offset,
+      venue_id: r.venue_id,
+      visibility: r.visibility,
+    })),
+    ids: all.map((r) => r.id),
+    texts: all.map((r) => r.search_text),
+  };
 };
 
 /** 差分の算出に使う、保存済みの ID と内容のハッシュ(search_index と meta だけを読む) */

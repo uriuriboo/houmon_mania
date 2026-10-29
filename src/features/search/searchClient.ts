@@ -3,6 +3,7 @@
  */
 import type { CheckinView } from '@/lib/model';
 import type { QueryNode } from '@/lib/query/ast';
+import type { SearchFilters } from '@/lib/search/filters';
 import type { SearchErrorCode, SearchRequest, SearchResponse, SearchResults } from '@/lib/workers/protocol';
 
 export class SearchWorkerError extends Error {
@@ -62,8 +63,8 @@ export class SearchClient {
     return { count: r.count, ms: r.ms };
   }
 
-  public async search(ast: QueryNode | null, page: number, size: number): Promise<SearchResults> {
-    const r = await this.request({ ast, page, size, type: 'search' });
+  public async search(ast: QueryNode | null, filters: SearchFilters, page: number, size: number): Promise<SearchResults> {
+    const r = await this.request({ ast, filters, page, size, type: 'search' });
     if (r.type !== 'results') throw new SearchWorkerError('UNKNOWN');
     return { items: r.items, ms: r.ms, page: r.page, total: r.total };
   }

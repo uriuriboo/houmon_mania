@@ -5,7 +5,7 @@ import type { DBSchema, IDBPDatabase, IDBPTransaction, StoreNames } from 'idb';
 import type { CheckinRecord, PhotoRecord, SearchIndexRecord } from '@/lib/model';
 
 /** 保存形式の版(IndexedDB のデータベースの版と、meta.schema_version) */
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export const META_KEYS = {
   schemaVersion: 'schema_version',

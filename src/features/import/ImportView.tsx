@@ -8,6 +8,7 @@ import { formatCount, ProgressBar } from '@/components/ui/misc';
 import { Notice } from '@/components/ui/notice';
 import { IosNotice } from '@/features/app/IosNotice';
 import { useAppState } from '@/features/app/AppStateProvider';
+import { DeleteDataControl } from '@/features/data/DeleteDataControl';
 import { formatLocalDate } from '@/lib/datetime';
 import type { AnalysisSummary } from '@/lib/import/analyze';
 import { FilePicker } from './FilePicker';
@@ -243,6 +244,18 @@ export function ImportView() {
           <CircleCheck className="size-4" aria-hidden />
           読み込んだファイル: {state.summary.fileNames.join('、')}
         </p>
+      )}
+
+      {status === 'ready' && meta.checkinCount > 0 && state.phase !== 'analyzing' && state.phase !== 'analyzed' && state.phase !== 'saving' && (
+        <section className="space-y-4 border-t border-stone-200 pt-8 dark:border-stone-800" aria-labelledby="delete-data">
+          <h2 id="delete-data" className="text-lg font-bold">
+            保存しているデータを削除する
+          </h2>
+          <p className="text-sm text-stone-700 dark:text-stone-300">
+            このブラウザに {formatCount(meta.checkinCount)} 件のチェックインを保存しています。使い終わったら削除すると、ブラウザの容量を空けられます。
+          </p>
+          <DeleteDataControl />
+        </section>
       )}
     </div>
   );

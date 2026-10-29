@@ -27,6 +27,10 @@ const MIGRATIONS: Record<number, Migration> = {
     photos.createIndex('checkin_id', 'checkin_id');
     db.createObjectStore('meta');
   },
+  // search_index に詳細条件(絞り込み)用の値を加えた。raw から作り直す
+  2: async (_db, tx) => {
+    await rebuildDerivedValues(tx);
+  },
 };
 
 export const runMigrations = async (db: AppDB, oldVersion: number, newVersion: number, tx: UpgradeTransaction): Promise<void> => {
