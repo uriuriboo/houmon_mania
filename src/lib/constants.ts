@@ -7,10 +7,11 @@ export const APP_NAME = 'Houmon_Mania';
 export const APP_NAME_JA = '足あと検索';
 
 /**
- * 公開 URL(オリジン)。sitemap.xml と robots.txt に使う。独自ドメインにするときは、ここだけ書き換える(17章 D-8)。
+ * 公開 URL(オリジン)。sitemap.xml と robots.txt に使う。ドメインを変えるときは、ここだけ書き換える(17章 D-8)。
  * 公開後にドメインを変えると、利用者の保存データは引き継げない。
+ * 2026-10-29 に独自ドメイン(Cloudflare で取得、ホスティングは Vercel)へ切り替えた(TODO # 32)。
  */
-export const SITE_URL = 'https://houmon-mania.vercel.app';
+export const SITE_URL = 'https://houmon-mania.toyosato-uribo.com';
 
 /** 検索エンジンに載せるページ(位置履歴を扱わないもの)。検索・取り込み・データ管理は載せない */
 export const PUBLIC_PATHS = ['/', '/about', '/privacy'] as const;

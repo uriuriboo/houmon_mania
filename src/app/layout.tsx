@@ -16,7 +16,7 @@ const SITE_DESCRIPTION =
 const OG_IMAGE = { alt: `${SITE_TITLE}のロゴと説明`, height: 630, url: '/og.png', width: 1200 };
 
 export const metadata: Metadata = {
-  // 相対パスの画像 URL を、公開 URL に直す。独自ドメインにするときは constants.ts の SITE_URL を書き換える
+  // 相対パスの画像 URL を、公開 URL に直す。ドメインを変えるときは constants.ts の SITE_URL を書き換える
   metadataBase: new URL(SITE_URL),
   title: { default: SITE_TITLE, template: `%s | ${APP_NAME}` },
   description: SITE_DESCRIPTION,
