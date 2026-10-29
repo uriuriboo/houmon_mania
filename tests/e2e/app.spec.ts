@@ -153,6 +153,33 @@ test.describe('取り込み → 検索 → 詳細 → 削除', () => {
     expectClean(w);
   });
 
+  test('取り込みの画面から、保存したデータを削除できる', async ({ page }) => {
+    const w = await watchPage(page);
+    await page.goto('/import');
+    // データが無いうちは削除のボタンを出さない
+    await expect(page.getByText('このブラウザにはまだデータがありません')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'このブラウザのデータを削除' })).toHaveCount(0);
+
+    await page.locator('input[type=file][accept*=".zip"]').setInputFiles(FIXTURE_ZIP);
+    await expect(page.getByText(/チェックイン 1,200 件/u)).toBeVisible({ timeout: 30_000 });
+    // 取り込みの途中は出さない
+    await expect(page.getByRole('button', { name: 'このブラウザのデータを削除' })).toHaveCount(0);
+    await page.getByRole('button', { name: '取り込む' }).click();
+    await expect(page.getByText('取り込みが完了しました')).toBeVisible({ timeout: 30_000 });
+
+    await expect(page.getByText(/このブラウザに 1,200 件のチェックインを保存しています/u)).toBeVisible();
+    await page.getByRole('button', { name: 'このブラウザのデータを削除' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: '削除する' }).click();
+    await expect(page.getByText('このブラウザのデータを削除しました')).toBeVisible({ timeout: 15_000 });
+    // 取り込み完了の表示と削除のボタンが消え、空の状態に戻る
+    await expect(page.getByText('取り込みが完了しました')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'このブラウザのデータを削除' })).toHaveCount(0);
+    await expect(page.getByText('このブラウザにはまだデータがありません')).toBeVisible();
+    await page.goto('/search');
+    await expect(page.getByText('このブラウザにはデータがありません')).toBeVisible();
+    expectClean(w);
+  });
+
   test('別のタブでデータを削除すると、他のタブは接続を閉じて案内を出す', async ({ context }) => {
     const a = await context.newPage();
     const wa = await watchPage(a);
