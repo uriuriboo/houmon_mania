@@ -13,9 +13,9 @@
 | 5 | Vercel の Toolbar を無効にする。Speed Insights も無効のまま | あなた | 済(2026-10-23) |
 | 6 | GitHub と Vercel の 2 段階認証、main ブランチの保護 | あなた | 済(2026-10-23) |
 | 7 | デプロイ後の確認(S-4): 画面・CSP・ZIP の取り込み・検索。コンソールのエラーを報告してもらう | あなた→私 | 済(2026-10-23) |
-| 8 | アプリ名・ドメインを決める(D-8)。**公開後に変えると利用者の保存データが引き継げない**。sitemap・OGP・Search Console もドメインが前提 | あなた | 未 |
+| 8 | アプリ名・ドメインを決める(D-8)。**公開後に変えると利用者の保存データが引き継げない**。sitemap・OGP・Search Console もドメインが前提 | あなた | **済(2026-10-29)**。表示名 `Houmon_Mania`・`足あと検索`、ドメイン `houmon-mania.toyosato-uribo.com` で確定 |
 | 9 | エクスポートの申し込み手順の文言を、実際の画面と照らす([ImportGuide.tsx](../src/features/import/ImportGuide.tsx)) | あなた→私 | 済(2026-10-23。取り込みページの文言を確認) |
-| 30 | **名前を houmon_mania に変更(2026-10-26 決定。表示名は `Houmon_Mania`、リポジトリ・package 名は `houmon_mania`、URL は `houmon-mania.vercel.app`)**。コードと文書の改名は**済(私)**。あなたの作業: ① GitHub のリポジトリ名を `houmon_mania` に変更(旧 URL は GitHub が転送する)→ 済んだら私が `git remote` を直す ② Vercel のプロジェクト名を `houmon-mania` に変更し、Settings → Domains で `houmon-mania.vercel.app` が使えることを確かめる(プロジェクト名を変えても、既存の URL が自動では変わらない場合がある) | あなた→私 | 未 |
+| 30 | **名前を houmon_mania に変更(2026-10-26 決定。表示名は `Houmon_Mania`、リポジトリ・package 名は `houmon_mania`、URL は `houmon-mania.vercel.app`)**。コードと文書の改名は**済(私)**。あなたの作業: ① GitHub のリポジトリ名を `houmon_mania` に変更(旧 URL は GitHub が転送する)→ 済んだら私が `git remote` を直す ② Vercel のプロジェクト名を `houmon-mania` に変更し、Settings → Domains で `houmon-mania.vercel.app` が使えることを確かめる(プロジェクト名を変えても、既存の URL が自動では変わらない場合がある) | あなた→私 | **済(2026-10-29)**。GitHub のリポジトリ名・Vercel のプロジェクト名とも変更済み。`git remote` も `houmon_mania.git` を向いている(確認済み) |
 | 31 | 30 で URL が変わるため、**Search Console を新しい URL(`https://houmon-mania.vercel.app/`)で登録し直す**(確認用のファイルかタグは新しいものが出る。私が `public/` などに追加する)→ サイトマップ送信 → Bing は取り込み直す。GA4 のデータストリームの URL も直す(GA4 を入れた後)。旧 URL の `google5cd5117f8a603ad4.html` は不要になれば削除 | あなた→私 | **済(2026-10-29)**。独自ドメイン `https://houmon-mania.toyosato-uribo.com/` で Search Console を登録し、サイトマップを送信(3 ページ検出)。旧確認ファイル `google5cd5117f8a603ad4.html` は削除(私)。GA4 のデータストリームの URL も変更済み、Bing は Search Console から取り込み済み(あなた) |
 | 32 | **Cloudflare**: 独自ドメインの取得と DNS の設定(**ホスティングは Vercel のまま**。Cloudflare Registrar で取得し、DNS を Vercel に向ける)。取得したら `constants.ts` の `SITE_URL` を書き換え、31 をやり直す。**公開後にドメインを変えると、利用者の保存データは引き継げない**(# 8 と一緒に決める) | あなた→私 | **済(2026-10-29)**。ドメイン `houmon-mania.toyosato-uribo.com` を Vercel に追加(あなた)、`SITE_URL` を書き換え(私)。`houmon-mania.vercel.app` を独自ドメインへ 308 リダイレクトにした(あなた。本番で確認済み)。31 も完了 |
 
@@ -30,7 +30,7 @@
 | # | やること | 前提 | 担当 |
 |---|---|---|---|
 | 10 | **Google Search Console** の登録(所有権の確認は meta タグか DNS。スクリプトなし) | ドメイン | **済(2026-10-23。URL プレフィックス `https://houmon-mania.vercel.app/`。確認用 HTML ファイルを `public/` に置いた)**。2026-10-29 に独自ドメイン `https://houmon-mania.toyosato-uribo.com/` で登録し直し、確認用ファイルは削除(# 31) |
-| 11 | **Bing Webmaster Tools** の登録(Search Console から取り込める。スクリプトなし) | 10 | あなた |
+| 11 | **Bing Webmaster Tools** の登録(Search Console から取り込める。スクリプトなし) | 10 | あなた。**済(2026-10-29。独自ドメインで取り込み)** |
 | 12 | **sitemap.xml**(トップ・このアプリについて・プライバシーポリシーの 3 ページだけ。`app/sitemap.ts` で静的に出力) | ドメイン | **済(2026-10-23)**。2026-10-29 に独自ドメイン `houmon-mania.toyosato-uribo.com` へ切り替え(`constants.ts` の `SITE_URL`) |
 | 13 | **robots.txt** に `Sitemap:` の行を足す(除外の設定は済み) | 12 | **済(2026-10-23)**。`public/robots.txt` を `app/robots.ts` に置き換えた(URL を `SITE_URL` と共通にするため) |
 | 14 | **description**: 「このアプリについて」「プライバシーポリシー」にページごとの説明を足す(全体の説明は設定済み)。**済(2026-10-22)** | — | 済 |

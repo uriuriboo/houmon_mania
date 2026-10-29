@@ -2,7 +2,7 @@
  * アプリ全体の定数。秘密の環境変数は持たず、ビルド時の設定はコードの定数として持つ(基本設計 12.3)。
  */
 
-/** 仮称(17章 D-8)。商標規定により Foursquare / Swarm / 4SQ / Check-in を含めない */
+/** 確定(2026-10-29。17章 D-8)。商標規定により Foursquare / Swarm / 4SQ / Check-in を含めない */
 export const APP_NAME = 'Houmon_Mania';
 export const APP_NAME_JA = '足あと検索';
 
