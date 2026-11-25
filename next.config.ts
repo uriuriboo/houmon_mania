@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: { unoptimized: true },
   productionBrowserSourceMaps: false,
+  experimental: {
+    agentUpgrade: 'security',
+  },
 };
 
 export default nextConfig;
