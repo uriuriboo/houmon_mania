@@ -16,7 +16,7 @@ export const TRADEMARK_NOTICE = 'Foursquare® および Swarm™ は Foursquare 
 export const REPO_URL = 'https://github.com/uriuriboo/houmon_mania';
 
 /** 作者の技術ブログ(アフィリエイト広告を含む場合がある。リンクに計測用のパラメータは付けない) */
-export const BLOG_URL = 'https://mikagesumiyoshitechblog.netlify.app/';
+export const BLOG_URL = 'https://daily.toyosato-uribo.com/posts/houmon_mania/';
 
 /** 問い合わせ先(不具合・要望)。Issue にはチェックインの内容を書かないよう案内する */
 export const ISSUES_URL = `${REPO_URL}/issues`;
